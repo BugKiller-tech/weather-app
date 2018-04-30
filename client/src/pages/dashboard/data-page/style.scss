@@ -1,0 +1,15 @@
+.date-range-group {
+  display: inline-flex;
+  min-width: 450px;
+  margin-top: 12px;
+}
+
+
+
+@media (max-width: 600px) {
+  .date-range-group {
+    display: 'block';
+    min-width: unset;
+    text-align: left;
+  }
+}

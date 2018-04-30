@@ -9,13 +9,13 @@ import 'react-dates/initialize';
 import 'react-dates/lib/css/_datepicker.css';
 import { connect } from 'react-redux';
 import api from '../../../api';
-import { RaisedButton } from 'material-ui';
+import { RaisedButton, RadioButtonGroup, RadioButton } from 'material-ui';
 import Spinner from 'react-spinkit';
 
 class DashboardMain extends Component {
   state = {
     
-
+    date_selection_type: 'last_week',
     startDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
     endDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
     focusedInput: null,
@@ -23,6 +23,9 @@ class DashboardMain extends Component {
     data: [],
     loading: false,
 
+  }
+  componentDidMount = () => {
+    this.fetchData();
   }
 
   fetchData = () => {
@@ -33,10 +36,21 @@ class DashboardMain extends Component {
       return;
     }
 
+    var startDate = this.state.startDate;
+    var endDate = this.state.endDate;
+
+    if (this.state.date_selection_type == 'last_week') {
+      startDate = moment().startOf('week').subtract(7, 'days');
+      endDate =  moment().endOf('week').subtract(7, 'days').endOf('hour'); 
+    } else if (this.state.date_selection_type == 'last_month') { 
+      startDate = moment().subtract(1,'months').startOf('month');
+      endDate =  moment().subtract(1,'months').endOf('month').endOf('hour');
+    }
+
     this.setState({ loading: true })
     api.fetchData({
-      startDate: this.state.startDate.unix(),
-      endDate: this.state.endDate.set({ hour: 23, minute: 59, second:59, millisecond: 0 }).unix()
+      startDate: startDate.unix(),
+      endDate: endDate.set({ hour: 23, minute: 59, second:59, millisecond: 0 }).unix()
     })
     .then(res => {
       console.log(res.data);
@@ -186,23 +200,41 @@ class DashboardMain extends Component {
       <div className="container-fluid">
         <h3 className="text-center m-3">Welcome to Admin Page!!</h3>
         <div className="text-center mb-2">
-          <DateRangePicker
-            startDate={this.state.startDate} // momentPropTypes.momentObj or null,
-            startDateId="start_date_id" // PropTypes.string.isRequired,
-            endDate={this.state.endDate} // momentPropTypes.momentObj or null,
-            endDateId="end_date_id" // PropTypes.string.isRequired,
-            onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
-            focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
-            onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
-            isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
-          />
-          <RaisedButton primary={true} label="Search" onClick={this.fetchData} />
-          <br/>
-          { this.state.loading ? (
-              <div>
-                <Spinner name="pacman" style={{ display: 'inline-block' }} /> Loading data ...
-              </div>
-            ) : '' }
+          <div className="row">
+            <div className="col-lg-6 text-center">
+              <RadioButtonGroup name="date_range_type" 
+                style={{ display: 'inline-flex', minWidth: '450px' }} defaultSelected='last_week'
+                onChange={(e) => { this.setState({ date_selection_type: e.target.value }) }}
+                >
+                <RadioButton value="last_week" label="Last Week" ></RadioButton>
+                <RadioButton value="last_month" label="Last Month"></RadioButton>
+                <RadioButton value="custom" label="Custom"></RadioButton>
+              </RadioButtonGroup>
+            </div>
+            <div className="col-lg-6 text-center">
+            <DateRangePicker
+              startDate={this.state.startDate} // momentPropTypes.momentObj or null,
+              startDateId="start_date_id" // PropTypes.string.isRequired,
+              endDate={this.state.endDate} // momentPropTypes.momentObj or null,
+              endDateId="end_date_id" // PropTypes.string.isRequired,
+              onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
+              focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+              onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
+              isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
+              disabled={ this.state.date_selection_type !='custom' ? true: false }
+            />
+            <RaisedButton primary={true} label="Search" onClick={this.fetchData} style={{ marginLeft: '30px' }} />
+            </div>
+          </div>  
+          <div className="row">
+            <div className="col-md-12 text-center">
+            { this.state.loading ? (
+                <div>
+                  <Spinner name="pacman" style={{ display: 'inline-block' }} /> Loading data ...
+                </div>
+              ) : '' }
+            </div>
+          </div>
         </div>
         <div className="row">
           <div className="col-md-6 text-center mb-1">

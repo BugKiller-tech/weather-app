@@ -9,17 +9,18 @@ import 'react-dates/lib/css/_datepicker.css';
 import { connect } from 'react-redux';
 
 import Spinner from 'react-spinkit';
-
-
-
+import {CSVLink} from 'react-csv';
 
 import api from '../../../api';
-import { RaisedButton } from 'material-ui';
+import { RaisedButton, RadioButtonGroup, RadioButton, IconButton } from 'material-ui';
+
+import './style.css'
 
 class DataPage extends Component {
 
 
   state = {
+    date_selection_type: 'last_week',
     startDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
     endDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
     focusedInput: null,
@@ -32,7 +33,7 @@ class DataPage extends Component {
 
 
   componentDidMount = () => {
-    
+    this.fetchData();    
   }
 
   fetchData = () => {
@@ -42,11 +43,23 @@ class DataPage extends Component {
       alert('You do not have any ability to browse data')
       return;
     }
+    
+    var startDate = this.state.startDate;
+    var endDate = this.state.endDate;
+
+    if (this.state.date_selection_type == 'last_week') {
+      startDate = moment().startOf('week').subtract(7, 'days');
+      endDate =  moment().endOf('week').subtract(7, 'days').endOf('hour'); ; 
+    } else if (this.state.date_selection_type == 'last_month') { 
+      startDate = moment().subtract(1,'months').startOf('month');
+      endDate =  moment().subtract(1,'months').endOf('month').endOf('hour'); ;
+    }
+
 
     this.setState({ loading: true })
     api.fetchData({
-      startDate: this.state.startDate.unix(),
-      endDate: this.state.endDate.set({ hour: 23, minute: 59, second:59, millisecond: 0 }).unix()
+      startDate: startDate.unix(),
+      endDate: endDate.set({ hour: 23, minute: 59, second:59, millisecond: 0 }).unix()
     })
     .then(res => {
       console.log(res.data);
@@ -63,7 +76,6 @@ class DataPage extends Component {
       console.log(err);
     })
   }
-
 
   render () {
     var columns = [
@@ -97,15 +109,34 @@ class DataPage extends Component {
         return availableFields.includes(column.Header)
       })
     }
-
     const dispData = this.state.data;
+
+
+    const downloadHeader = []
+    columns.map(colume => {
+      downloadHeader.push( {label: colume.Header, key: colume.accessor})
+    })
+
+
+
 
     return (
       <div className="container-fluid">
         <div className="row mt-5">
           <div className="col-md-12 text-center">
             <h3>View Weather data</h3>
-            <div>
+            <div className="row">
+              <div className="col-lg-6 text-center">
+                <RadioButtonGroup name="date_range_type" 
+                  className="date-range-group" defaultSelected='last_week'
+                  onChange={(e) => { this.setState({ date_selection_type: e.target.value }) }}
+                  >
+                  <RadioButton value="last_week" label="Last Week" ></RadioButton>
+                  <RadioButton value="last_month" label="Last Month"></RadioButton>
+                  <RadioButton value="custom" label="Custom"></RadioButton>
+                </RadioButtonGroup>
+              </div>
+              <div className="col-lg-6 text-center">
               <DateRangePicker
                 startDate={this.state.startDate} // momentPropTypes.momentObj or null,
                 startDateId="start_date_id" // PropTypes.string.isRequired,
@@ -115,22 +146,30 @@ class DataPage extends Component {
                 focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
                 onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
                 isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
+                disabled={ this.state.date_selection_type !='custom' ? true: false }
               />
-              <RaisedButton primary={true} label="Search" onClick={this.fetchData} />
-              <br/>
+              <RaisedButton primary={true} label="Search" onClick={this.fetchData} style={{ margin: '10px' }} />
+              <CSVLink data={dispData} headers={downloadHeader} filename={`weather-data-downloaded-at-${moment().toString()}`} style={{ float: 'right' }}>
+                  Download as CSV
+              </CSVLink>
+              </div>
+            </div>  
+            <div className="row">
+              <div className="col-md-12 text-center">
               { this.state.loading ? (
                   <div>
                     <Spinner name="pacman" style={{ display: 'inline-block' }} /> Loading data ...
                   </div>
                 ) : '' }
+              </div>
             </div>
+            
             <ReactTable 
               data={dispData}
               columns={columns}
-              defaultPageSize={15}
+              defaultPageSize={13}
               filterable={true}
             />
-
 
           </div>
         </div>

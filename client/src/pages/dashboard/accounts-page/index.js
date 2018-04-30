@@ -212,7 +212,7 @@ class RegisterUser extends Component {
       <div className="container-fluid">
         <div className="row mt-3">
           <div className="col-md-4">
-            <Paper style={{ minHeight: '80vh', padding: '20px' }}>
+            <Paper style={{ minHeight: '90vh', padding: '20px' }}>
             { isEditMode ? (<h3>Edit Account</h3>) : (<h3>Register New Account</h3>) }
               
               <div>
@@ -245,8 +245,8 @@ class RegisterUser extends Component {
                     fullWidth={true}
                     />
                     <div className="text-center mt-3">
-                      <RaisedButton label={ isEditMode ? 'Save Changes' : 'Register Account' } primary={true} onClick={this.onSubmit} /> &nbsp; &nbsp;
-                      { isEditMode ? <RaisedButton label="Cancel" primary={false} onClick={ this.cancelEdit } /> : '' }
+                      <RaisedButton label={ isEditMode ? 'Save Changes' : 'Register Account' } primary={true} fullWidth={true} onClick={this.onSubmit} /> &nbsp; &nbsp;
+                      { isEditMode ? <RaisedButton label="Cancel" primary={false} fullWidth={true} onClick={ this.cancelEdit } /> : '' }
                       <br/>
                       { this.state.loading ? (<Spinner name="wave" style={{ display: 'inline-block' }} />) : '' }
                   </div>
@@ -262,7 +262,7 @@ class RegisterUser extends Component {
             </Paper>
           </div>
           <div className="col-md-8">
-            <Paper  style={{ minHeight: '80vh', padding: '20px' }}>
+            <Paper  style={{ minHeight: '90vh', padding: '20px' }}>
               <h3>All Users</h3>
               
               <ReactTable
