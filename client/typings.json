@@ -1,0 +1,9 @@
+{
+  "globalDependencies": {
+    "axios": "registry:dt/axios#0.9.1+20161016142654",
+    "react-router-dom": "registry:dt/react-router-dom#4.0.0+20170323201651",
+    "recompose": "registry:dt/recompose#0.22.0+20170306203754",
+    "redux": "registry:dt/redux#3.5.2+20160703092728",
+    "redux-thunk": "registry:dt/redux-thunk#2.1.0+20160703120921"
+  }
+}

@@ -1,0 +1,23 @@
+.login {
+  background-image: url(../../images/login-back.jpeg);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh;
+
+  .login-box {
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    padding: 50px;
+    transform: translate(-50%, -50%);
+  }
+
+  @media (max-width: 600px) {
+    .login-box {
+      width:90%;
+    }
+  }
+}
