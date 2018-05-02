@@ -12,7 +12,7 @@ import Spinner from 'react-spinkit';
 import {CSVLink} from 'react-csv';
 
 import api from '../../../api';
-import { RaisedButton, RadioButtonGroup, RadioButton, IconButton } from 'material-ui';
+import { RaisedButton, RadioButtonGroup, RadioButton, IconButton, DropDownMenu, MenuItem } from 'material-ui';
 
 import './style.css'
 
@@ -126,17 +126,16 @@ class DataPage extends Component {
           <div className="col-md-12 text-center">
             <h3>View Weather data</h3>
             <div className="row">
-              <div className="col-lg-6 text-center">
-                <RadioButtonGroup name="date_range_type" 
-                  className="date-range-group" defaultSelected='last_week'
-                  onChange={(e) => { this.setState({ date_selection_type: e.target.value }) }}
+              <div className="col-lg-12 text-center">
+              <DropDownMenu 
+                  value={this.state.date_selection_type} 
+                  onChange={ (event, index, value) => { this.setState({ date_selection_type: value }) }}
+                  style={{ minWidth: '200px'}}
                   >
-                  <RadioButton value="last_week" label="Last Week" ></RadioButton>
-                  <RadioButton value="last_month" label="Last Month"></RadioButton>
-                  <RadioButton value="custom" label="Custom"></RadioButton>
-                </RadioButtonGroup>
-              </div>
-              <div className="col-lg-6 text-center">
+                  <MenuItem value={"last_week"} primaryText="Last Week" ></MenuItem>
+                  <MenuItem value={"last_month"} primaryText="Last Month"></MenuItem>
+                  <MenuItem value={"custom"} primaryText="Custom"></MenuItem>
+              </DropDownMenu>
               <DateRangePicker
                 startDate={this.state.startDate} // momentPropTypes.momentObj or null,
                 startDateId="start_date_id" // PropTypes.string.isRequired,

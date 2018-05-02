@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 // import { Pie, Bar, Line } from 'react-chartjs';
 import { Line } from 'react-chartjs-2';
-import { Paper } from 'material-ui';
+import { Paper, DropDownMenu, MenuItem } from 'material-ui';
 
 import * as moment from 'moment';
 import { DateRangePicker, SingleDatePicker, DayPickerRangeController, isInclusivelyBeforeDay } from 'react-dates';
@@ -309,29 +309,28 @@ class DashboardMain extends Component {
           </div>
           <div className="row">
             
-            <div className="col-lg-6 text-center">
-              <RadioButtonGroup name="date_range_type" 
-                style={{ display: 'inline-flex', minWidth: '450px' }} defaultSelected='last_week'
-                onChange={(e) => { this.setState({ date_selection_type: e.target.value }) }}
-                >
-                <RadioButton value="last_week" label="Last Week" ></RadioButton>
-                <RadioButton value="last_month" label="Last Month"></RadioButton>
-                <RadioButton value="custom" label="Custom"></RadioButton>
-              </RadioButtonGroup>
-            </div>
-            <div className="col-lg-6 text-center">
-            <DateRangePicker
-              startDate={this.state.startDate} // momentPropTypes.momentObj or null,
-              startDateId="start_date_id" // PropTypes.string.isRequired,
-              endDate={this.state.endDate} // momentPropTypes.momentObj or null,
-              endDateId="end_date_id" // PropTypes.string.isRequired,
-              onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
-              focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
-              onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
-              isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
-              disabled={ this.state.date_selection_type !='custom' ? true: false }
-            />
-            <RaisedButton primary={true} label="Search" onClick={this.fetchData} style={{ marginLeft: '30px' }} />
+            <div className="col-lg-12 text-center">
+              <DropDownMenu 
+                  value={this.state.date_selection_type} 
+                  onChange={ (event, index, value) => { this.setState({ date_selection_type: value }) }}
+                  style={{ minWidth: '200px'}}
+                  >
+                  <MenuItem value={"last_week"} primaryText="Last Week" ></MenuItem>
+                  <MenuItem value={"last_month"} primaryText="Last Month"></MenuItem>
+                  <MenuItem value={"custom"} primaryText="Custom"></MenuItem>
+              </DropDownMenu>
+              <DateRangePicker
+                startDate={this.state.startDate} // momentPropTypes.momentObj or null,
+                startDateId="start_date_id" // PropTypes.string.isRequired,
+                endDate={this.state.endDate} // momentPropTypes.momentObj or null,
+                endDateId="end_date_id" // PropTypes.string.isRequired,
+                onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
+                focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
+                isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
+                disabled={ this.state.date_selection_type !='custom' ? true: false }
+              />
+              <RaisedButton primary={true} label="Search" onClick={this.fetchData} style={{ marginLeft: '30px' }} />
             </div>
           </div>  
       

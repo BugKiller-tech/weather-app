@@ -91,8 +91,7 @@ class Login extends Component {
     return (
       <div className='login'>
         <Paper className='login-box' zDepth={3}>
-          <h2>Weather Data Log In</h2>
-          <div>Username</div>
+          <div className='text-center'><h2>WeatherAdda</h2></div>
           <TextField
             hintText="Username"
             errorText={ errors.email ? errors.email : '' }
@@ -102,7 +101,6 @@ class Login extends Component {
             value={this.state.username}
             onChange={this.valueChange}
             /> <br/>
-          <div>Password</div>
           <TextField
             hintText="Password"
             errorText={ errors.password ? errors.password : '' }
