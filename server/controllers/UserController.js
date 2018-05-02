@@ -102,9 +102,9 @@ module.exports = {
 
 
 
-  addLocation: async (req, res) => {
+  addLocations: async (req, res) => {
     try {
-      const newUser = await User.update({ _id: req.body.user_id }, {$addToSet: { locations : req.body.location }}, { new: true })
+      const newUser = await User.update({ _id: req.body.user_id }, {$addToSet: { locations : req.body.locations }}, { new: true })
       const user = await User.findOne({ _id: req.body.user_id});
       return res.json({
         message: 'Successfully added',
@@ -134,9 +134,10 @@ module.exports = {
 
 
 
-  addField: async (req, res) => {
+  addFields: async (req, res) => {
     try {
-      const newUser = await User.update({ _id: req.body.user_id }, {$addToSet: { fields : req.body.fieldName }}, { new: true })
+      console.log(req.body.fieldNames);
+      const newUser = await User.update({ _id: req.body.user_id }, {$addToSet: { fields : req.body.fieldNames }}, { new: true })
       const user = await User.findOne({ _id: req.body.user_id});
       return res.json({
         message: 'Successfully added',
