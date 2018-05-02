@@ -13,10 +13,11 @@ export default {
   updateUser: (data) => axios.post('/api/user/update', data),
   deleteUser: (data) => axios.post('/api/user/delete', data),
   fetchAllUser: () => axios.get('/api/user/all'),
-  addLocationToUser: (data) => axios.post('/api/user/addLocation', data), 
+
+  addLocationsToUser: (data) => axios.post('/api/user/addLocations', data), 
   deleteLocationFromUser: (data) => axios.post('/api/user/deleteLocation', data), 
 
-  addFieldToUser: (data) => axios.post('/api/user/addField', data), 
+  addFieldsToUser: (data) => axios.post('/api/user/addFields', data), 
   deleteFieldFromUser: (data) => axios.post('/api/user/deleteField', data), 
 
 

@@ -15,7 +15,7 @@ import AddRoleComponent from './AddRoleComponent';
 
 
 import api from '../../../api';
-
+import './index.css';
 class RegisterUser extends Component {
 
   state = {
@@ -209,7 +209,7 @@ class RegisterUser extends Component {
 
     return (
 
-      <div className="container-fluid">
+      <div className="container-fluid account-page">
         <div className="row mt-3">
           <div className="col-md-4">
             <Paper style={{ minHeight: '90vh', padding: '20px' }}>
@@ -236,7 +236,7 @@ class RegisterUser extends Component {
                     fullWidth={true}
                     />
                   <TextField 
-                    hintText="Password" type="text" floatingLabelText="Password" 
+                    hintText="Password" type="password" floatingLabelText="Password" 
                     name="password" 
                     errorStyle= {{ float: "left" }}
                     errorText = { errors.password ? errors.password : '' }

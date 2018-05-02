@@ -149,25 +149,21 @@ class DataPage extends Component {
                 disabled={ this.state.date_selection_type !='custom' ? true: false }
               />
               <RaisedButton primary={true} label="Search" onClick={this.fetchData} style={{ margin: '10px' }} />
-              <CSVLink data={dispData} headers={downloadHeader} filename={`weather-data-downloaded-at-${moment().toString()}`} style={{ float: 'right' }}>
+              <CSVLink data={dispData} headers={downloadHeader} filename={`weather-data-downloaded-at-${moment().toString()}.csv`} style={{ float: 'right' }}>
                   Download as CSV
               </CSVLink>
               </div>
             </div>  
-            <div className="row">
-              <div className="col-md-12 text-center">
-              { this.state.loading ? (
-                  <div>
-                    <Spinner name="pacman" style={{ display: 'inline-block' }} /> Loading data ...
-                  </div>
-                ) : '' }
-              </div>
-            </div>
+            { this.state.loading ? (
+                <div className="loading-indicator">
+                  <Spinner name="pacman" style={{ display: 'inline-block' }} />
+                </div>
+              ) : '' }
             
             <ReactTable 
               data={dispData}
               columns={columns}
-              defaultPageSize={13}
+              defaultPageSize={10}
               filterable={true}
             />
 

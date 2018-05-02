@@ -26,7 +26,7 @@ class Dashboard extends Component {
     return (
       <div>
         <AppBar
-            title="Weather Data System"
+            title="WeatherAdda"
             iconClassNameRight="muidocs-icon-navigation-expand-more"
             onLeftIconButtonClick = {this.toggleSidebar} 
           />

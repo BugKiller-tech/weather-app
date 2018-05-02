@@ -116,10 +116,10 @@ class Sidebar extends Component {
           open={this.state.open}
           docked={false}
           onRequestChange={this.toggleSidebar}
+          label="adfasd"
           >
-          <AppBar primaryText="HH" showMenuIconButton={false} />
+          <AppBar primaryText="" showMenuIconButton={false} title="WeatherAdda" />
           <List>
-            <Subheader>Please choose one</Subheader>
             { menuRender }
           </List>
 

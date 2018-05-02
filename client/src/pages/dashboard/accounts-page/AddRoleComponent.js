@@ -2,12 +2,13 @@ import React, { Component } from 'react'
 import  { PropTypes } from 'prop-types';
 
 import { connect } from 'react-redux';
-import { SelectField, MenuItem, RaisedButton, List, ListItem, IconButton } from 'material-ui';
+import { SelectField, MenuItem, RaisedButton, List, ListItem, IconButton, FontIcon } from 'material-ui';
 import ReactTable from "react-table";
 import { fetchAllUsers } from '../../../actions/users.js';
 
 
-
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 
 
 
@@ -18,35 +19,35 @@ import api from '../../../api';
 import './AddRoleComponent.css';
 
 const allFields = [
-  { name: 'className', label: 'Class Name' },
-  { name: 'location', label: 'location' },
-  { name: 'district', label: 'district' },
-  { name: 'village', label: 'village' },
-  { name: 'stationName', label: 'stationName' },
-  { name: 'date', label: 'date' },
-  { name: 'time', label: 'time' },
-  { name: 'tempOut', label: 'tempOut' },
-  { name: 'hiTemp', label: 'hiTemp' },
-  { name: 'lowTemp', label: 'lowTemp' },
-  { name: 'outHum', label: 'outHum' },
-  { name: 'dewpt', label: 'dewpt' },
-  { name: 'avgWindSpeed', label: 'avgWindSpeed' },
-  { name: 'hiWindSpeed', label: 'hiWindSpeed' },
-  { name: 'windDir', label: 'windDir' },
-  { name: 'bar', label: 'bar' },
-  { name: 'rain', label: 'rain' },
-  { name: 'rainRate', label: 'rainRate' },
-  { name: 'heatDD', label: 'heatDD' },
-  { name: 'coolDD', label: 'coolDD' },
-  { name: 'leafWet', label: 'leafWet' },
-  { name: 'batVlt', label: 'batVlt' },
+  { value: 'className', label: 'Class Name' },
+  { value: 'location', label: 'location' },
+  { value: 'district', label: 'district' },
+  { value: 'village', label: 'village' },
+  { value: 'stationName', label: 'stationName' },
+  { value: 'date', label: 'date' },
+  { value: 'time', label: 'time' },
+  { value: 'tempOut', label: 'tempOut' },
+  { value: 'hiTemp', label: 'hiTemp' },
+  { value: 'lowTemp', label: 'lowTemp' },
+  { value: 'outHum', label: 'outHum' },
+  { value: 'dewpt', label: 'dewpt' },
+  { value: 'avgWindSpeed', label: 'avgWindSpeed' },
+  { value: 'hiWindSpeed', label: 'hiWindSpeed' },
+  { value: 'windDir', label: 'windDir' },
+  { value: 'bar', label: 'bar' },
+  { value: 'rain', label: 'rain' },
+  { value: 'rainRate', label: 'rainRate' },
+  { value: 'heatDD', label: 'heatDD' },
+  { value: 'coolDD', label: 'coolDD' },
+  { value: 'leafWet', label: 'leafWet' },
+  { value: 'batVlt', label: 'batVlt' },
 ]
 
 class AddRoleComponent extends Component {
 
   state = {
-    selectedLocation: '',
-    selectedField: '',
+    selectedLocations: [],
+    selectedFields: [],
 
 
     currentUser: {},
@@ -72,21 +73,22 @@ class AddRoleComponent extends Component {
   }
 
 
-  addLocation = () => {
-    if (this.state.selectedLocation == '') {
+  addLocations = () => {
+    if (this.state.selectedLocations.length == 0) {
       alert('Please select the location first to add');
       return;
     }
 
     this.setState( {  loading: true })
 
-    api.addLocationToUser({
+    api.addLocationsToUser({
       user_id: this.state.currentUser._id,
-      location: this.state.selectedLocation
+      locations: this.state.selectedLocations.map(data => data.value)
     })
     .then(res => {
       this.setState({
         locations: res.data.locations,
+        selectedLocations: [],
         loading: false
       })
       this.updateUsers();
@@ -119,19 +121,21 @@ class AddRoleComponent extends Component {
     })
   }
 
-  addField = () => {
-    if (this.state.selectedField == '') {
+  addFields = () => {
+    if (this.state.selectedFields.length == 0) {
       alert('Please select the field first to add');
       return;
     }
+
     this.setState( {  loading: true })
-    api.addFieldToUser({
+    api.addFieldsToUser({
       user_id: this.state.currentUser._id,
-      fieldName: this.state.selectedField
+      fieldNames: this.state.selectedFields.map(field => field.value)
     })
     .then(res => {
       this.setState({
         fields: res.data.fields,
+        selectedFields: [],
         loading: false
       })
       this.updateUsers();
@@ -165,15 +169,13 @@ class AddRoleComponent extends Component {
   }
 
   render () {
-    const locationMenuItems = this.props.allLocations.map((name, idx) => {
-      return (  <MenuItem value={name} primaryText={name} key={idx} />  )
+    const allLocationsOption = this.props.allLocations.map((name, idx) => {
+      return {
+        value: name,
+        label: name
+      }
     })
-    const allFieldsItem = allFields.map((name, idx) => {
-      return (  <MenuItem value={name.name} primaryText={name.label} key={idx} />  )
-    })
-
     
-
     const user = this.state.currentUser;
     const { locations, fields } = this.state;
 
@@ -188,9 +190,7 @@ class AddRoleComponent extends Component {
         accessor: 'label',
         maxWidth: 100,
         Cell: props => 
-          <div>
-            <IconButton iconClassName="material-icons" onClick={() => { this.deleteLocation(props.value) }}>delete</IconButton>
-          </div>
+        <i className="material-icons" onClick={() => { this.deleteLocation(props.value) }}>delete_forever</i>
       }
     ]
 
@@ -209,7 +209,7 @@ class AddRoleComponent extends Component {
         accessor: 'label',
         maxWidth: 100,
         Cell: props => 
-            <IconButton iconClassName="material-icons" onClick={() => { this.deleteField(props.value) }}>delete</IconButton>
+          <i className="material-icons" onClick={() => { this.deleteField(props.value) }}>delete_forever</i>
       }
     ]
 
@@ -223,26 +223,29 @@ class AddRoleComponent extends Component {
         <div className="user-info">
           User Name: <strong>{ user.username } </strong>
         </div>
-        <div className="text-center">
-          { this.state.loading ? (<Spinner name="double-bounce" style={{ display: 'inline-block' }} />) : '' }
-        </div>
+          { this.state.loading ? (
+            <div className="loading-indicator">
+              <Spinner name="double-bounce" style={{ display: 'inline-block' }} />
+            </div>
+          ) : '' }
         <div className="row">
           <div className="col-md-6">
-            <SelectField
-              floatingLabelText="Available Locations"
-              value={this.state.selectedLocation}
-              fullWidth={true}
-              onChange={(event, index, value) => { this.setState({ selectedLocation: value }); }}
-            >
-              { locationMenuItems }
-            </SelectField>
-            <RaisedButton label="Add Location" primary={true} fullWidth={true} onClick={this.addLocation}></RaisedButton>
+            <Select
+              name="form-locations"
+              className="mt-3 mb-3"
+              value={this.state.selectedLocations}
+              onChange={(selectedFields) => { this.setState({ selectedLocations: selectedFields }) }}
+              multi={true}
+              options={allLocationsOption}
+            />
+            
+            <RaisedButton label="Add Location" primary={true} fullWidth={true} onClick={this.addLocations}></RaisedButton>
 
-            <div className="text-center mt-5">
+            <div className="text-center mt-2">
               <ReactTable
                   data={userLocationsItems}
                   columns={locationColumns}
-                  defaultPageSize={7}
+                  defaultPageSize={5}
                   filterable={true}
                   />
             </div>
@@ -250,21 +253,21 @@ class AddRoleComponent extends Component {
             
           </div>
           <div className="col-md-6">
-            <SelectField
-              floatingLabelText="Available Locations"
-              value={this.state.selectedField}
-              fullWidth={true}
-              onChange={(event, index, value) => { this.setState({ selectedField: value }); }}
-              >
-              { allFieldsItem }
-            </SelectField>
-            <RaisedButton label="Add Field" primary={true} fullWidth={true} onClick={this.addField}></RaisedButton>
+            <Select
+              name="form-fields"
+              className="mt-3 mb-3"
+              value={this.state.selectedFields}
+              onChange={(selectedFields) => { this.setState({ selectedFields: selectedFields }) }}
+              multi={true}
+              options={allFields}
+            />
+            <RaisedButton label="Add Field" primary={true} fullWidth={true} onClick={this.addFields}></RaisedButton>
 
-            <div className="text-center mt-5">
+            <div className="text-center mt-2">
               <ReactTable
                   data={userFieldsItem}
                   columns={fieldsColumn}
-                  defaultPageSize={7}
+                  defaultPageSize={5}
                   filterable={true}
                   />
             </div>
