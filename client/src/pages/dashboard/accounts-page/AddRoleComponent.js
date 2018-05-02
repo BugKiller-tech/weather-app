@@ -190,7 +190,7 @@ class AddRoleComponent extends Component {
         accessor: 'label',
         maxWidth: 100,
         Cell: props => 
-        <i className="material-icons" onClick={() => { this.deleteLocation(props.value) }}>delete_forever</i>
+        <i className="material-icons" style={{ cursor: 'pointer' }} onClick={() => { this.deleteLocation(props.value) }}>delete_forever</i>
       }
     ]
 
@@ -209,7 +209,7 @@ class AddRoleComponent extends Component {
         accessor: 'label',
         maxWidth: 100,
         Cell: props => 
-          <i className="material-icons" onClick={() => { this.deleteField(props.value) }}>delete_forever</i>
+          <i className="material-icons" style={{ cursor: 'pointer' }} onClick={() => { this.deleteField(props.value) }}>delete_forever</i>
       }
     ]
 
