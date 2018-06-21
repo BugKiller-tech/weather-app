@@ -4,6 +4,8 @@ const path = require('path')
 
 var users = require('./users');
 var weatherdatas = require('./weatherdatas');
+var ftps = require('./ftps');
+var weatherStations = require('./weatherstations');
 
 const checkAuth = require('../middlewares/checkAuth');
 
@@ -14,7 +16,8 @@ router.use('/api/user', users);
 router.use(checkAuth)
 
 router.use('/api/data', weatherdatas);
-
+router.use('/api/ftps', ftps);
+router.use('/api/weatherstations', weatherStations);
 
 
 

@@ -37,7 +37,7 @@ require('./models')();
 app.use('/', index);
 
 
-
+//Joi error send middleware
 app.use((err, req, res, next) => {
   if (err.error.isJoi) {
     // we had a joi error, let's return a custom 400 json response

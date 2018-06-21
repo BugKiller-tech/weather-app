@@ -29,4 +29,14 @@ export default {
   checkLogin: () => axios.post('/api/user/checkLogin'),
   
 
+  createFtpAccount: (data) => axios.post('/api/ftps/create', data),
+  deleteFtpAccount: (data) => axios.post('/api/ftps/delete', data),
+  updateFtpAccount: (data) => axios.post('/api/ftps/update', data),
+  getAllFtpAccount: () => axios.get('/api/ftps/all'),
+
+
+  createWeatherStation: (data) => axios.post('/api/weatherstations/create', data),
+  deleteWeatherStation: (data) => axios.post('/api/weatherstations/delete', data),
+  updateWeatherStation: (data) => axios.post('/api/weatherstations/update', data),
+  getAllWeatherStation: () => axios.get('/api/weatherstations/all'),
 }

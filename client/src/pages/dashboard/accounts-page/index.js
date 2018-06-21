@@ -244,11 +244,11 @@ class RegisterUser extends Component {
                     value={this.state.password}
                     fullWidth={true}
                     />
-                    <div className="text-center mt-3">
-                      <RaisedButton label={ isEditMode ? 'Save Changes' : 'Register Account' } primary={true} fullWidth={true} onClick={this.onSubmit} /> &nbsp; &nbsp;
-                      { isEditMode ? <RaisedButton label="Cancel" primary={false} fullWidth={true} onClick={ this.cancelEdit } /> : '' }
-                      <br/>
-                      { this.state.loading ? (<Spinner name="wave" style={{ display: 'inline-block' }} />) : '' }
+                  <div className="text-center mt-3">
+                    <RaisedButton label={ isEditMode ? 'Save Changes' : 'Register Account' } primary={true} fullWidth={true} onClick={this.onSubmit} /> &nbsp; &nbsp;
+                    { isEditMode ? <RaisedButton label="Cancel" primary={false} fullWidth={true} onClick={ this.cancelEdit } /> : '' }
+                    <br/>
+                    { this.state.loading ? (<Spinner name="wave" style={{ display: 'inline-block' }} />) : '' }
                   </div>
                 </div>
 

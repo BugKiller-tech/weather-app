@@ -23,7 +23,7 @@ module.exports = {
         message: 'Can not make the account'
       })
     } catch(err) {
-      res.status.json({
+      res.status(400).json({
         message: 'Something went wrong'
       })
     }   

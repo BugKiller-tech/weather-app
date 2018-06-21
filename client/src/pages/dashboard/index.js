@@ -7,6 +7,9 @@ import Sidebar from './Sidebar';
 import DashboardMain from './dashboard-main';
 import DataPage from './data-page';
 import AccountsPage from './accounts-page';
+import FtpAccounts from './ftp-accounts';
+import WeatherStations from './weather-stations';
+import DataPoints from './data-points';
 
 
 class Dashboard extends Component {
@@ -36,9 +39,9 @@ class Dashboard extends Component {
         <Route path={`${match.url}/`} exact component={DashboardMain} />
         <Route path={`${match.url}/data`} exact component={DataPage} />
         <Route path={`${match.url}/accounts`} exact component={AccountsPage} />
-
-               
-        
+        <Route path={`${match.url}/ftp-accounts`} exact component={FtpAccounts} />
+        <Route path={`${match.url}/weather-stations`} exact component={WeatherStations} />
+        <Route path={`${match.url}/data-points`} exact component={DataPoints} />
 
       </div>
     )

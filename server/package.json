@@ -16,10 +16,12 @@
     "express": "~4.15.2",
     "express-joi-validation": "^0.2.1",
     "express-session": "^1.15.6",
+    "ftpd": "^0.2.15",
     "joi": "^13.2.0",
     "moment": "^2.22.1",
     "mongoose": "^5.0.15",
     "morgan": "~1.8.1",
+    "randomstring": "^1.1.5",
     "serve-favicon": "~2.4.2"
   }
 }

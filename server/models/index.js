@@ -7,12 +7,27 @@ const url = dbConfig.MONGODB_URL;
 
 
 const WeatherData = require('./WeatherData');
+const User = require('./User');
 
 module.exports = function() {
   console.log('Trying to connect to server now....');
   mongoose.connect(url)
   mongoose.connection.once('open', async () => {
     console.log('Connected to server.... :)');
+
+
+    // const data = await User.find({ username: 'test1' });
+    // if (!data) {
+    //   const newUser = await User.create({
+    //     name: 'Bugkiller',
+    //     username: 'test1'
+    //   });
+    //   newUser.setPassword('111111')
+    //   await newUser.save();
+    // }
+
+
+
 
     
       // console.log('start convert......')

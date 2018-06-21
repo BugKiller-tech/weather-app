@@ -24,6 +24,30 @@ class Sidebar extends Component {
       adminOnly: false,
     },
     {
+      name: 'ftp-accounts',
+      text: 'Ftp Accounts',
+      path: 'ftp-accounts',
+      icon: 'account_balance_wallet',
+      hasChild: false,
+      adminOnly: false,
+    },
+    {
+      name: 'weather-stations',
+      text: 'Weather Stations',
+      path: 'weather-stations',
+      icon: 'place',
+      hasChild: false,
+      adminOnly: false,
+    },
+    {
+      name: 'data-points',
+      text: 'Data Points',
+      path: 'data-points',
+      icon: 'select_all',
+      hasChild: false,
+      adminOnly: false,
+    },
+    {
       name: 'data',
       text: 'Data',
       path: 'data',
@@ -43,7 +67,7 @@ class Sidebar extends Component {
       name: 'logout',
       text: 'Log Out',
       path: 'logout',
-      icon: 'account_circle',
+      icon: 'power_settings_new',
       hasChild: false,
       adminOnly: false,
     }
@@ -74,7 +98,6 @@ class Sidebar extends Component {
       this.props.history.push('/');
       return;
     }
-
 
     this.props.history.push(`${prefix}/${path}`);
   }
