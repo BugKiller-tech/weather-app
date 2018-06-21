@@ -6,6 +6,7 @@ var users = require('./users');
 var weatherdatas = require('./weatherdatas');
 var ftps = require('./ftps');
 var weatherStations = require('./weatherstations');
+var datapoints = require('./datapoints');
 
 const checkAuth = require('../middlewares/checkAuth');
 
@@ -18,7 +19,7 @@ router.use(checkAuth)
 router.use('/api/data', weatherdatas);
 router.use('/api/ftps', ftps);
 router.use('/api/weatherstations', weatherStations);
-
+router.use('/api/datapoints', datapoints);
 
 
 

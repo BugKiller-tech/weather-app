@@ -39,4 +39,10 @@ export default {
   deleteWeatherStation: (data) => axios.post('/api/weatherstations/delete', data),
   updateWeatherStation: (data) => axios.post('/api/weatherstations/update', data),
   getAllWeatherStation: () => axios.get('/api/weatherstations/all'),
+
+
+  createDataPoint: (data) => axios.post('/api/datapoints/create', data),
+  deleteDataPoint: (data) => axios.post('/api/datapoints/delete', data),
+  updateDataPoint: (data) => axios.post('/api/datapoints/update', data),
+  getAllDatapoints: () => axios.get('/api/datapoints/all'),
 }
