@@ -2,10 +2,17 @@ process.EventEmitter = require("events");
 var ftpd = require('ftpd');
 var fs = require('fs');
 var path = require('path');
+var csv = require('csvtojson');
+
+var ftp_root = 'ftp_root';
 
 
 // communicate with database to check ftp
 const FtpAccount = require('./models/FtpAccount');
+const WeatherStation = require('./models/WeatherStation');
+const DataCollection = require('./models/DataCollection');
+const DataProcessing = require('./models/DataProcessing');
+const DataPoint = require('./models/DataPoint');
 
 var keyFile;
 var certFile;
@@ -52,8 +59,9 @@ server = new ftpd.FtpServer(options.host, {
       var relativePath = ftp1.relative_path;
       if (relativePath == '') relativePath = 'anonymous';
 
-      var f_path = process.cwd() + '/ftp_root/' + relativePath;
-      console.log('~~~~~~~~~~~~~~~~~~~ hkg328 ~~~~~~~~~~~~', f_path);
+      var f_path = process.cwd() + `/${ftp_root}/` + relativePath;
+      // console.log('hkg328 ~~~~~~~~~~~~', f_path);
+
       fs.exists(f_path, function(exists) {
         if (exists) {
           callback(null, f_path);
@@ -82,7 +90,7 @@ server = new ftpd.FtpServer(options.host, {
       // }
       // var relativePath = ftp1.relative_path;
       // if (relativePath == '') relativePath = 'anonymous';
-      var rootPath = process.cwd() + '/ftp_root';
+      var rootPath = process.cwd() + `/${ftp_root}`;
       fs.exists(rootPath, function(exists) {
         if (exists) {
           callback(null, rootPath);
@@ -129,11 +137,10 @@ server.on('client:connected', function(connection) {
     }
   });
   connection.on('command:pass', async function(pass, success, failure) {
-    console.log('~~~~~~~~~~~~~~ hkg password ~~~~~~~~~~~~~~', pass);
+    console.log('hkg328 password check -----', pass);
     // console.log('pass', pass);
     // console.log('success', success);
     // console.log('failure', failure);
-
     try {
       const user = await FtpAccount.findOne({
         username: username,
@@ -153,6 +160,86 @@ server.on('client:connected', function(connection) {
   })
   connection.on('file:dele', async function(arg1) {
     console.log('delete the file with remote')
+  })
+
+  connection.on('open', function(fd) {
+    console.log('hkghkghkg -------  open open.');
+  })
+
+  connection.on('file:stor', async function(type, info) {
+    console.log('------------- json file is uploaded ----------------');
+    console.log('ARGS  ', type, info );
+
+    if (type == 'close') {
+      // console.log('file size is', info.filesize);
+      // console.log('file name is', info.file);
+
+      let filePath = path.join(__dirname, `${ftp_root}${info.file}`);
+      let isExist = fs.existsSync(filePath);
+      if (!isExist) {
+        return;
+      }
+
+      let ftpUsername = info.user
+      let ftpAccount = await FtpAccount.findOne({ username: ftpUsername })
+      if (!ftpAccount) { return }
+
+      let weatherStation = await WeatherStation.findOne({ ftp: ftpAccount._id });
+      if (!weatherStation) {
+        return;
+      }
+      // console.log(weatherStation);
+      let keys = weatherStation.csv_data_format.split(',').map(item => {
+        return item.trim(); 
+      });
+
+      let dataPoints = await DataPoint.find({ 'relations': { $elemMatch: { weatherStation: weatherStation._id } } });
+      let dataProcessingKeys = [];
+      if (dataPoints) {
+        dataPoints.map(item => {
+          let colName = '';
+          let found = item.relations.find(rel => {
+            return rel.weatherStation.equals(weatherStation._id);
+          });
+          dataProcessingKeys.push({
+            name: item.name,
+            colName: found.colName
+          });
+        })
+      }
+      console.log('DataProcessing', dataProcessingKeys);
+
+      // console.log(keys);
+      csv({ output: 'csv' }).fromFile(filePath)
+      .then((data)=> {
+        data.map(async item => {
+          // saving to data collection
+          let collection = { station: weatherStation._id };
+
+          // saving to data processing
+          let collection1 = { station: weatherStation._id };
+
+          if (item.length >= keys.length) {
+            for (let i = 0; i< keys.length; i++) {
+              collection[keys[i]] = item[i];
+            }
+            let temp = await DataCollection.findOne(collection);
+            if (!temp){
+              await DataCollection.create(collection);
+            }
+
+            dataProcessingKeys.map(dPItem => {
+              collection1[dPItem.name] = collection[dPItem.colName];
+            })
+            temp = await DataProcessing.findOne(collection1);
+            if (!temp) {
+              await DataProcessing.create(collection1);
+            }
+          }
+          
+        })        
+      });
+    }
   })
 
 });

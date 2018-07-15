@@ -1,4 +1,6 @@
 const FtpAccount = require('../models/FtpAccount');
+const commonResponse = require('../utils/commonResponses');
+
 module.exports = {
   create: async (req, res) => {
     try {
@@ -23,9 +25,7 @@ module.exports = {
       }
 
     } catch (err) {
-      res.status(400).json({
-        message: 'something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
   },
   delete: async (req, res) => {
@@ -46,9 +46,7 @@ module.exports = {
         message: 'can not delete the account'
       })
     } catch (err) {
-      res.status(400).json({
-        message: 'something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
   },
   update: async (req, res) => {
@@ -66,9 +64,7 @@ module.exports = {
         message: 'Successfully deleted ftp account'
       })
     } catch (err) {
-      res.status(400).json({
-        message: 'something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
   },
   all: async (req, res) => {
@@ -79,9 +75,7 @@ module.exports = {
         ftps
       });
     } catch(err) {
-      res.status(400).json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
   }
 }

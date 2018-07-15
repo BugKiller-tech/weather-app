@@ -45,4 +45,7 @@ export default {
   deleteDataPoint: (data) => axios.post('/api/datapoints/delete', data),
   updateDataPoint: (data) => axios.post('/api/datapoints/update', data),
   getAllDatapoints: () => axios.get('/api/datapoints/all'),
+
+
+  getUnpublishedDataProcessing: () => axios.get('/api/dataprocessings/getUnpublished'),
 }

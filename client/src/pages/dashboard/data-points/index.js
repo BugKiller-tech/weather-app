@@ -143,7 +143,7 @@ class DataPoints extends Component {
     let stationColumns = [];
     if (station && station.csv_data_format) {
       stationColumns = station.csv_data_format.split(',').map((item, idx) => {
-        return <MenuItem  key={idx} value={item} primaryText={item} />
+        return <MenuItem  key={idx} value={item.trim()} primaryText={item.trim()} />
       })
     }
     this.setState({ selectedStationId: value, columnCandidates: stationColumns }) 

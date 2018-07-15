@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const superadminInfo = require('../config/superadmin');
+const commonResponse = require('../utils/commonResponses');
 
 module.exports = {
   register: async (req, res) => {
@@ -23,9 +24,7 @@ module.exports = {
         message: 'Can not make the account'
       })
     } catch(err) {
-      res.status(400).json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }   
   },
 
@@ -47,9 +46,7 @@ module.exports = {
         message: 'Can not delete the account'
       })
     } catch(err) {
-      res.status.json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }   
   },
 
@@ -76,9 +73,7 @@ module.exports = {
       });
  
     } catch(err) {
-      res.status.json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }   
   },
 
@@ -92,9 +87,7 @@ module.exports = {
       })
       
     } catch(err) {
-      res.status.json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }   
   },
 
@@ -111,9 +104,7 @@ module.exports = {
         locations: user.locations
       })
     } catch (err) {
-      return res.status(400).json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
   },
 
@@ -126,9 +117,7 @@ module.exports = {
         locations: user.locations
       })
     } catch (err) {
-      return res.status(400).json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
   },
 
@@ -144,9 +133,7 @@ module.exports = {
         fields: user.fields
       })
     } catch (err) {
-      return res.status(400).json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
   },
 
@@ -159,9 +146,7 @@ module.exports = {
         fields: user.fields
       })
     } catch (err) {
-      return res.status(400).json({
-        message: 'Something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
   },
 
@@ -209,9 +194,7 @@ module.exports = {
 
     } catch(err) {
       console.log(err);
-      res.status(400).json({
-        message: 'something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
     
   },

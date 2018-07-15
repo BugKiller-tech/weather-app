@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { AppBar } from 'material-ui';
 
 import Sidebar from './Sidebar';
@@ -10,7 +10,8 @@ import AccountsPage from './accounts-page';
 import FtpAccounts from './ftp-accounts';
 import WeatherStations from './weather-stations';
 import DataPoints from './data-points';
-
+import DataProcessing from './data-processing';
+import NotFound from '../NotFound';
 
 class Dashboard extends Component {
   state = {
@@ -35,14 +36,15 @@ class Dashboard extends Component {
           />
         <Sidebar open={this.state.open} toggleSidebar = {this.toggleSidebar} />
 
-
-        <Route path={`${match.url}/`} exact component={DashboardMain} />
-        <Route path={`${match.url}/data`} exact component={DataPage} />
-        <Route path={`${match.url}/accounts`} exact component={AccountsPage} />
-        <Route path={`${match.url}/ftp-accounts`} exact component={FtpAccounts} />
-        <Route path={`${match.url}/weather-stations`} exact component={WeatherStations} />
-        <Route path={`${match.url}/data-points`} exact component={DataPoints} />
-
+        <Switch>
+          <Route path={`${match.url}/`} exact component={DashboardMain} />
+          <Route path={`${match.url}/data`} exact component={DataPage} />
+          <Route path={`${match.url}/accounts`} exact component={AccountsPage} />
+          <Route path={`${match.url}/ftp-accounts`} exact component={FtpAccounts} />
+          <Route path={`${match.url}/weather-stations`} exact component={WeatherStations} />
+          <Route path={`${match.url}/data-cleanup`} exact component={DataProcessing} />
+          <Route component={NotFound} />
+        </Switch>
       </div>
     )
   }

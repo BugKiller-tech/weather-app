@@ -48,6 +48,14 @@ class Sidebar extends Component {
       adminOnly: false,
     },
     {
+      name: 'data-cleanup',
+      text: 'Data Cleanup',
+      path: 'data-cleanup',
+      icon: 'format_paint',
+      hasChild: false,
+      adminOnly: true,
+    },
+    {
       name: 'data',
       text: 'Data',
       path: 'data',

@@ -7,6 +7,7 @@ var weatherdatas = require('./weatherdatas');
 var ftps = require('./ftps');
 var weatherStations = require('./weatherstations');
 var datapoints = require('./datapoints');
+var dataprocessigns = require('./dataprocessings');
 
 const checkAuth = require('../middlewares/checkAuth');
 
@@ -20,6 +21,7 @@ router.use('/api/data', weatherdatas);
 router.use('/api/ftps', ftps);
 router.use('/api/weatherstations', weatherStations);
 router.use('/api/datapoints', datapoints);
+router.use('/api/dataprocessings', dataprocessigns);
 
 
 

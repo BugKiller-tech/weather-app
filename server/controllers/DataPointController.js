@@ -1,4 +1,5 @@
 const DataPoint = require('../models/DataPoint');
+const commonResponse = require('../utils/commonResponses');
 
 module.exports = {
   removeDuplicates: () => {
@@ -27,9 +28,7 @@ module.exports = {
 
 
     } catch (err) {
-      return res.status(400).json({
-        message: 'something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
 
   },
@@ -53,9 +52,7 @@ module.exports = {
       })
 
     } catch (err) {
-      return res.status(400).json({
-        message: 'something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
 
   },
@@ -74,9 +71,7 @@ module.exports = {
         message: 'Successfully updated the data point'
       })
     } catch (err) {
-      return res.status(400).json({
-        message: 'something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
 
   },
@@ -88,10 +83,7 @@ module.exports = {
         dataPoints
       })
     } catch (err) {
-      return res.status(400).json({
-        message: 'something went wrong'
-      })
+      commonResponse.sendSomethingWentWrong(req, res, err);
     }
-
   }
 }
