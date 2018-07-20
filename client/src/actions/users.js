@@ -2,26 +2,16 @@ import * as types from './ActionTypes'
 import api from '../api';
 
 export function userLoggedIn(user) {
-  return {
-    type: types.USER_LOGGED_IN,
-    user
-  }
+  return {type: types.USER_LOGGED_IN, user}
 }
 
 export function userLoggedOut() {
-  return {
-    type: types.USER_LOGGED_OUT
-  }
+  return {type: types.USER_LOGGED_OUT}
 }
 
 export function fetchedAllUsers(users) {
-  return {
-    type: types.USER_FETCHED_ALL_USERS,
-    users
-  }
+  return {type: types.USER_FETCHED_ALL_USERS, users}
 }
-
-
 
 export const login = user => dispatch => {
   dispatch(userLoggedIn(user))
@@ -33,11 +23,11 @@ export const logout = () => dispatch => {
   dispatch(userLoggedOut())
 }
 
-
 export const fetchAllUsers = () => dispatch => {
-  api.fetchAllUser()
-  .then(res => {
-    dispatch(fetchedAllUsers(res.data.users))
-  })
-  
+  api
+    .fetchAllUser()
+    .then(res => {
+      dispatch(fetchedAllUsers(res.data.users))
+    })
+
 }

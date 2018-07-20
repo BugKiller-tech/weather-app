@@ -2,12 +2,13 @@ import * as types from '../actions/ActionTypes'
 
 const initialAuthState = {
   user: null,
-  users: []
+  users: [],
+  allDataPoints: []
 };
 
-export default function reducer(state = initialAuthState , action) {
+export default function reducer(state = initialAuthState, action) {
 
-  switch(action.type){
+  switch (action.type) {
     case types.USER_LOGGED_IN:
       return {
         ...state,

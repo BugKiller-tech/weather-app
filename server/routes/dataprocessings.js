@@ -16,13 +16,17 @@ const createSchema = Joi.object({
   password: Joi.string().required(),
 });
 
+const deleteSchema = Joi.object({
+  _id: Joi.string().required(),
+});
+
 
 router.use(checkAdmin);
 
 
 router.get('/getUnpublished', controller.getUnpublishedData);
-// router.post('/getUpu', validator.body(createSchema), controller.create);
-// router.post('/delete', validator.body(deleteSchema), controller.delete);
+router.post('/delete', validator.body(deleteSchema), controller.delete);
+router.post('/saveAndPublish', controller.saveAndPublish);
 // router.post('/update', validator.body(updateSchema), controller.update);
 // router.get('/all', controller.all);
 

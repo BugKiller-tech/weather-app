@@ -48,4 +48,6 @@ export default {
 
 
   getUnpublishedDataProcessing: () => axios.get('/api/dataprocessings/getUnpublished'),
+  deleteDataProcessing: (data) => axios.post('/api/dataprocessings/delete', data),
+  saveAndPublish: (data) => axios.post('/api/dataprocessings/saveAndPublish', data),
 }

@@ -12,6 +12,53 @@ module.exports = {
     } catch (err) {
       commonResponse.sendSomethingWentWrong(req, res, err);
     }
+  },
 
+  delete: async (req, res) => {
+    try {
+      const data = await DataProcessing.findOne({ _id: req.body._id });
+      if (!data) {
+        return res.status(400).json({
+          message: 'Can not find the data in server'
+        })
+      }
+      await DataProcessing.deleteOne({ _id: req.body._id });
+      return res.json({
+        message: 'Successfully deleted'
+      });
+
+
+    } catch (err) {
+      commonResponse.sendSomethingWentWrong(req, res, err);
+    }
+  },
+
+  saveAndPublish: async (req, res) => {
+
+    try {
+      const data = req.body.data;
+
+      const exceptKeys = ['_id', 'station', 'published', '__v', 'updatedAt', 'createdAt'];
+      data.map(async (item) => {
+        let dbItem = await DataProcessing.findOne({ _id: item._id });
+
+        if (!dbItem) return;
+        const updateValues = {};
+        
+        Object.keys(item).map(valueKey => {
+          if (exceptKeys.includes(valueKey)) { return }
+          updateValues[valueKey] = item[valueKey];
+        });
+        updateValues['published'] = true;
+        
+        await DataProcessing.findByIdAndUpdate(item._id, updateValues);
+      });
+
+      return res.json({
+        message: 'Successfully saved and published',
+      })
+    } catch (err) {
+      commonResponse.sendSomethingWentWrong();
+    }
   },
 }

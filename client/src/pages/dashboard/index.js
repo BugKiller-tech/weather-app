@@ -42,6 +42,7 @@ class Dashboard extends Component {
           <Route path={`${match.url}/accounts`} exact component={AccountsPage} />
           <Route path={`${match.url}/ftp-accounts`} exact component={FtpAccounts} />
           <Route path={`${match.url}/weather-stations`} exact component={WeatherStations} />
+          <Route path={`${match.url}/data-points`} exact component={DataPoints} />
           <Route path={`${match.url}/data-cleanup`} exact component={DataProcessing} />
           <Route component={NotFound} />
         </Switch>
