@@ -27,7 +27,7 @@ router.use('/api/dataprocessings', dataprocessigns);
 
 /* GET home page. */
 router.get('/*', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '../public/index.html'))
+  res.sendFile(path.join(__dirname, '../../client/build/index.html'))
 });
 
 module.exports = router;

@@ -88,13 +88,24 @@ class DataProcessing extends Component {
       data: this.state.data
     })
     .then(res => {
+      this.setState({ loading: false, snackMessage: res.data.message, snackbarOpen: true, data: [] });
+    })
+    .catch(err => {
+      this.setState({ loading: false, snackMessage: err.response.data.message, snackbarOpen: true });
+    })
+  }
+
+  deleteAll = () => {
+    if (!window.confirm('Do you want to delete all the unpublished data')) { return; }
+    this.setState({ loading: true });
+    Api.deleteAllUnpublished()
+    .then(res => {
       this.setState({ loading: false, snackMessage: res.data.message, snackbarOpen: true });
       this.fetchDataFromServer();
     })
     .catch(err => {
       this.setState({ loading: false, snackMessage: err.response.data.message, snackbarOpen: true });
     })
-    
   }
   
   render() {
@@ -105,9 +116,17 @@ class DataProcessing extends Component {
       keys = Object.keys(data[0]);
     }
     const columns = []; const editColumns = [];
-    const exceptKeys = ['_id', 'station', 'published', '__v', 'updatedAt', 'createdAt'];
+    const exceptKeys = ['_id', 'published', '__v', 'updatedAt', 'createdAt'];
     keys.map(key => {
       if (exceptKeys.includes(key)) { return }
+      if (key == 'station') {
+        columns.push({
+          Header: 'Station',
+          accessor: 'station',
+          Cell: data => (<div>{data.value.code}</div>)
+        })
+        return;
+      }
       columns.push({ Header: key, accessor: key, Cell: this.renderEditable });
       editColumns.push(key);
     });
@@ -143,6 +162,12 @@ class DataProcessing extends Component {
                   label="Save and Publish"
                   primary={true}
                   onClick = {this.saveDataAndPublish}
+                ></RaisedButton> 
+                &nbsp;&nbsp;&nbsp;
+                <RaisedButton
+                  label="Delete All"
+                  secondary={true}
+                  onClick = {this.deleteAll}
                 ></RaisedButton>
               </div>
               <ReactTable 

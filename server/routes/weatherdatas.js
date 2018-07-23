@@ -7,8 +7,10 @@ const controller = require('../controllers/WeatherDataController');
 
 
 const getDataSchema = Joi.object({
-  startDate: Joi.number().required(),
-  endDate: Joi.number().required(),
+  // startDate: Joi.number().required(),
+  // endDate: Joi.number().required(),
+  startDate: Joi.string().required(),
+  endDate: Joi.string().required(),
 })
 
 router.get('/allLocations', controller.allLocations);

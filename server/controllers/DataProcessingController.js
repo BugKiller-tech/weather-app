@@ -5,9 +5,15 @@ module.exports = {
   getUnpublishedData: async (req, res) => {
     try {
       const data = await DataProcessing.find({ published: { $ne: true }}).populate('station');
-      res.json({
-        message: 'Success',
-        data: data,
+      if (data) {
+        return res.json({
+          message: 'Success',
+          data: data,
+        })
+      }
+      return res.json({
+        message: 'Success but empty result',
+        data: []
       })
     } catch (err) {
       commonResponse.sendSomethingWentWrong(req, res, err);
@@ -31,6 +37,18 @@ module.exports = {
     } catch (err) {
       commonResponse.sendSomethingWentWrong(req, res, err);
     }
+  },
+
+  deleteAllUnpublished: async (req, res) => {
+    try {
+      await DataProcessing.remove({ published: false });
+      return res.json({
+        message: 'Successfully deleted all'
+      })
+    } catch (err) {
+      commonResponse.sendSomethingWentWrong(req, res, err);
+    }
+
   },
 
   saveAndPublish: async (req, res) => {

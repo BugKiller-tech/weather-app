@@ -19,6 +19,7 @@ module.exports = {
       const newItem = await DataPoint.create({
         name: req.body.name,
         desc: req.body.desc,
+        isChartDispElement: req.body.isChartDispElement,
         relations: req.body.relations
       })
 
@@ -43,6 +44,7 @@ module.exports = {
 
       dataPoint.name = req.body.name;
       dataPoint.desc = req.body.desc;
+      dataPoint.isChartDispElement = req.body.isChartDispElement;
       dataPoint.relations = req.body.relations;
 
       await dataPoint.save();

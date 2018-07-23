@@ -11,7 +11,10 @@ const schema = new Schema(
       type: String,
       required: true
     },
-    
+    isChartDispElement: {
+      type: Boolean,
+      default: false,
+    },
     relations:[{
         weatherStation: {
           type: Schema.Types.ObjectId,

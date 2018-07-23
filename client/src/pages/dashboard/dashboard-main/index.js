@@ -15,7 +15,8 @@ import { connect } from 'react-redux';
 import api from '../../../api';
 import { RaisedButton, RadioButtonGroup, RadioButton } from 'material-ui';
 import Spinner from 'react-spinkit';
-import { fetchAllLocations } from '../../../actions/weather-datas';
+import { fetchAllWeatherStations } from '../../../actions/weather-stations';
+import { fetchAllDataPoints } from '../../../actions/data-points';
 import Select from 'react-select';
 
 import './style.css'
@@ -53,9 +54,7 @@ class DashboardMain extends Component {
 
     selectedLocations: [],
 
-
     data: [],
-
 
     user: {},
     allLocations: [],
@@ -64,7 +63,8 @@ class DashboardMain extends Component {
   }
   componentDidMount = () => {
     this.setState({ user: this.props.user, allLocations: this.props.allLocations })
-    this.props.fetchAllLocations();
+    this.props.fetchAllWeatherStations();
+    if (this.props.dataPoints.length <= 0) this.props.fetchAllDataPoints();
     this.fetchData();
   }
   componentWillReceiveProps = (nextProps) => {
@@ -73,16 +73,16 @@ class DashboardMain extends Component {
     if (nextProps.allLocations) { 
       nextState.allLocations = nextProps.allLocations 
       if (this.state.user && this.state.user.isAdmin) {
-        if (this.state.selectedLocations.length == 0)
-          nextState.selectedLocations = [{ value: nextProps.allLocations[0], label: nextProps.allLocations[0] }];
+        if (this.state.selectedLocations.length == 0 && nextProps.allLocations.length > 0)
+          nextState.selectedLocations = [{ value: nextProps.allLocations[0]._id, label: nextProps.allLocations[0].code }];
       }
     }
 
     if (nextProps.user) { 
       nextState.user = nextProps.user 
       if (!nextProps.user.isAdmin && nextProps.user.locations.length > 0) {
-        if (this.state.selectedLocations.length == 0)
-          nextState.selectedLocations = [{ value: nextProps.user.locations[0], label: nextProps.user.locations[0] }];
+        if (this.state.selectedLocations.length == 0 && nextProps.allLocations.length > 0)
+          nextState.selectedLocations = [{ value: nextProps.user.locations[0]._id, label: nextProps.user.locations[0].code }];
       }
     }
     this.setState(nextState);
@@ -110,8 +110,8 @@ class DashboardMain extends Component {
 
     this.setState({ loading: true })
     api.fetchData({
-      startDate: startDate.unix(),
-      endDate: endDate.set({ hour: 23, minute: 59, second:59, millisecond: 0 }).unix()
+      startDate: startDate,
+      endDate: endDate.set({ hour: 23, minute: 59, second:59, millisecond: 0 })
     })
     .then(res => {
       console.log(res.data);
@@ -128,158 +128,113 @@ class DashboardMain extends Component {
       console.log(err);
     })
   }
-
-
   render () {
 
     const { user } = this.state;
 
-
-
-
     var interestedLocationOptions = [];
 
-    
-    
     if (this.props.user) {
       if (this.props.user.isAdmin) {
-        interestedLocationOptions = this.props.allLocations.map((name, idx) => {
+        interestedLocationOptions = this.props.allLocations.map((item, idx) => {
           return {
-            value: name,
-            label: name
+            value: item._id,
+            label: item.code
           }
         })
       } else{
-        interestedLocationOptions = this.props.user.locations.map((name, idx) => {
+        interestedLocationOptions = this.props.user.locations.map((item, idx) => {
           return {
-            value: name,
-            label: name
+            value: item._id,
+            label: item.code
           }
         })
         console.log('user from redux', this.props.user);
         console.log('user locations', interestedLocationOptions)
       }
     }
+
+    const allDrawData = { };
+    this.props.dataPoints.map(item => {
+      if (item.isChartDispElement) allDrawData[item.name] = {};
+    })
+    console.log('drawArrays', allDrawData);
     
 
-
     
-    
+    var xAxislabels = [];
 
-    const hiTempDrawDatas = {};
-    const lowTempDrawDatas = {};
-    const rainDrawDatas = {};
-    var xAxislabels = []
-
-    const interestedLocations = this.state.selectedLocations.map(location => location.value);
+    const interestedLocations = this.state.selectedLocations.map(location => location.label);
     const interestedLocationCount = interestedLocations.length;
 
     if (interestedLocationCount > 0) {
-      for(var i = 0; i<interestedLocationCount; i++) {
+      Object.keys(allDrawData).map(drawItemKey => {
 
-        var currentLocation = interestedLocations[i];
+        for(var i = 0; i<interestedLocationCount; i++) {
+          
+          var currentLocation = interestedLocations[i];
+          
+          var sum_data1 = 0; var sumcount1 = 0;  const drawData1 = []  //hiTemp
+          var currentDate = moment().add(-100, 'days');
+          const labels = []
+
+          this.state.data.map(d => {
+            if (d.station.code != currentLocation) { return }
+            let date = moment(d.time);
+            if (date.diff(currentDate) > 0)  {
+              labels.push(currentDate)
+              
+              if (sumcount1 != 0) {  drawData1.push(sum_data1 / sumcount1) } else {  drawData1.push(0) }
+              sumcount1 = 1;  sum_data1 = parseFloat(d[drawItemKey]);
+              
+              currentDate = d.date;
+
+            } else {
+              sumcount1 += 1; sum_data1 += parseFloat(d[drawItemKey])
+            }
+          })
+          labels.push(currentDate.format('YYYY/MM/DD'));
+          if (sumcount1 != 0) {  drawData1.push(sum_data1 / sumcount1) } else {  drawData1.push(0) }
 
 
-        var sum_data1 = 0; var sumcount1 = 0;  const drawData1 = []  //hiTemp
-        var sum_data2 = 0; var sumcount2 = 0;  const drawData2 = [] // lowTemp
-        var sum_data3 = 0; var sumcount3 = 0;  const drawData3 = []  //rain
-        var currentDate = '';
-        const labels = []
+          allDrawData[drawItemKey][currentLocation] = drawData1;
 
-        this.state.data.map(d => {
-          if (d.date != currentDate)  {
-            labels.push(currentDate)
-            
-            if (sumcount1 != 0) {  drawData1.push(sum_data1 / sumcount1) } else {  drawData1.push(0) }
-            sumcount1 = 1;  sum_data1 = parseFloat(d.hiTemp);
-
-            if (sumcount2 != 0) {  drawData2.push(sum_data2 / sumcount2) } else {  drawData2.push(0) }
-            sumcount2 = 1;  sum_data2 = parseFloat(d.lowTemp);
-
-            if (sumcount3 != 0) {  drawData3.push(sum_data3 / sumcount3) } else {  drawData3.push(0) }
-            sumcount3 = 1;  sum_data3 = parseFloat(d.rain);
-
-
-
-            currentDate = d.date;
-
-          } else {
-            if (d.location != currentLocation) { return }
-            sumcount1 += 1; sum_data1 += parseFloat(d.hiTemp)
-            sumcount2 += 1; sum_data2 += parseFloat(d.lowTemp)
-            sumcount3 += 1; sum_data3 += parseFloat(d.rain)
+          if (labels.length > xAxislabels.length) {
+            xAxislabels = labels
+            console.log('x axis labels', xAxislabels)
+            console.log('labels', labels);
           }
-        })
-        labels.push(currentDate)
-        if (sumcount1 != 0) {  drawData1.push(sum_data1 / sumcount1) } else {  drawData1.push(0) }
-        if (sumcount2 != 0) {  drawData2.push(sum_data2 / sumcount2) } else {  drawData2.push(0) }
-        if (sumcount3 != 0) {  drawData3.push(sum_data3 / sumcount3) } else {  drawData3.push(0) }
-
-
-        hiTempDrawDatas[currentLocation] = drawData1;
-        lowTempDrawDatas[currentLocation] = drawData2;
-        rainDrawDatas[currentLocation] = drawData3;
-        if (labels.length > xAxislabels.length) {
-          xAxislabels = labels
-          console.log('x axis labels', xAxislabels)
-          console.log('labels', labels);
         }
-        
-      }
+      })
     }
 
 
-    const hiTempLineData = {
-      labels: xAxislabels,
-      datasets: [ ]
-    };
+    const drawLineData = {};
+    Object.keys(allDrawData).map(fieldKey => {
+      drawLineData[fieldKey] = {
+        labels: xAxislabels,
+        datasets: [ ]
+      };
 
-    const lowTempLineData = {
-      labels: xAxislabels,
-      datasets: [ ]
-    };
-
-    const rainTempLineData = {
-      labels: xAxislabels,
-      datasets: []
-    };
-
-    if (interestedLocationCount > 0) {
-      for (var i=0; i<interestedLocations.length; i++) {
-        if (hiTempDrawDatas[interestedLocations[i]].length > 1) {
-          hiTempLineData.datasets.push({
-            label: interestedLocations[i],
-            fill: false,
-            borderColor: `rgba(${graphColors[i]}, 1)`,
-            pointBorderColor: `rgba(${graphColors[i]}, 1)`,
-            // backgroundColor: `rgba(${graphColors[i]}, 0.4)`,
-            data: hiTempDrawDatas[interestedLocations[i]]
-          });
-        }
-        if(lowTempDrawDatas[interestedLocations[i]].length > 1) {
-          lowTempLineData.datasets.push({
-            label: interestedLocations[i],
-            fill: false,
-            borderColor: `rgba(${graphColors[i]}, 1)`,
-            pointBorderColor: `rgba(${graphColors[i]}, 1)`,
-            // backgroundColor: `rgba(${graphColors[i]}, 0.4)`,
-            data: lowTempDrawDatas[interestedLocations[i]]
-          });
-        }
-        if( rainDrawDatas[interestedLocations[i]].length > 1 ) {
-          rainTempLineData.datasets.push({
-            label: interestedLocations[i],
-            fill: false,
-            borderColor: `rgba(${graphColors[i]}, 1)`,
-            pointBorderColor: `rgba(${graphColors[i]}, 1)`,
-            // backgroundColor: `rgba(${graphColors[i]}, 0.4)`,
-            data: rainDrawDatas[interestedLocations[i]]
-          });
+      if (interestedLocationCount > 0) {
+        for (var i=0; i<interestedLocations.length; i++) {
+          let codeName = interestedLocations[i];
+          if (allDrawData[fieldKey][codeName].length >= 1) {
+            drawLineData[fieldKey].datasets.push({
+              label: codeName,
+              fill: false,
+              borderColor: `rgba(${graphColors[i]}, 1)`,
+              pointBorderColor: `rgba(${graphColors[i]}, 1)`,
+              // backgroundColor: `rgba(${graphColors[i]}, 0.4)`,
+              data: allDrawData[fieldKey][codeName]
+            });
+          }
         }
       }
-    }
+    });
+    console.log('DASHBOARD TOTAL CALC', allDrawData, drawLineData);
+
     
-
 
     return (
       <div className="container-fluid">
@@ -341,31 +296,20 @@ class DashboardMain extends Component {
             ) : '' }
         </div>
         <div className="row">
-          <div className="col-md-6 text-center no-padding">
-            <Paper style={{padding: '10px'}}>
-              <h4>hiTemp Graph</h4>
-              { interestedLocationCount > 0 && xAxislabels.length > 1 ?
-              <Line data={hiTempLineData} options={{ responsive: true }}/>
-              : '' }
-            </Paper>
-          </div>
-          <div className="col-md-6 text-center no-padding">
-            <Paper style={{padding: '10px'}}>
-              <h4>lowTemp Graph</h4>
-              { interestedLocationCount > 0 && xAxislabels.length > 1 ?
-              <Line data={lowTempLineData} options={{ responsive: true }}/>
-              : '' }
-            </Paper>
-          </div>
-          <div className="col-md-6 text-center no-padding">
-            <Paper style={{padding: '10px'}}>
-              <h4>Rain Graph</h4>
-              { interestedLocationCount > 0 && xAxislabels.length > 1 ?
-              <Line data={rainTempLineData} options={{ responsive: true }}/>
-              : '' }
-            </Paper>
-          </div>
-
+        {
+            Object.keys(drawLineData).map((fieldKey, index) => {
+              return (
+                <div className="col-md-6 text-center no-padding" key={index}>
+                  <Paper style={{padding: '10px'}}>
+                    <h4>{fieldKey} Graph</h4>
+                    { interestedLocationCount > 0 && xAxislabels.length > 1 &&
+                      <Line data={drawLineData[fieldKey]} options={{ responsive: true }}/>
+                    }
+                  </Paper>
+                </div>
+              )
+            })
+        }
         </div>
       </div>
     )
@@ -373,13 +317,14 @@ class DashboardMain extends Component {
 }
 
 DashboardMain.propTypes = {
-  fetchAllLocations: PropTypes.func.isRequired,
+  fetchAllWeatherStations: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = (state, ownProps) => {
   return {
     user: state.auth.user,
-    allLocations: state.weatherData.allLocations
+    allLocations: state.stations.stations,
+    dataPoints: state.dataPoints.dataPoints,
   }
 }
-export default connect(mapStateToProps, { fetchAllLocations })(DashboardMain);
+export default connect(mapStateToProps, { fetchAllWeatherStations, fetchAllDataPoints })(DashboardMain);

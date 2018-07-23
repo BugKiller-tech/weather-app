@@ -3,6 +3,10 @@ var ftpd = require('ftpd');
 var fs = require('fs');
 var path = require('path');
 var csv = require('csvtojson');
+const moment = require('moment');
+
+
+
 
 var ftp_root = 'ftp_root';
 
@@ -229,11 +233,32 @@ server.on('client:connected', function(connection) {
             }
 
             dataProcessingKeys.map(dPItem => {
-              collection1[dPItem.name] = collection[dPItem.colName];
+
+              let value = collection[dPItem.colName];
+              if (dPItem.name == 'time') {
+                if (Date.parse(value) == NaN) {
+                  console.log('~~~~~~~~~ INCLUDES ONLY TIME', value);
+                  let d = new Date();
+                  let hms = value.split(':');
+                  
+                  if (hms.length > 2) {  d.setHours( parseInt(hms[0]));  d.setMinutes( parseInt(hms[1])); }
+                  collection1[dPItem.name] = d;
+                } else {
+                  console.log('~~~~~~~~~ INCLUDES ULL DATE AND TIME', value);
+                  collection1[dPItem.name] = new Date(Date.parse(value))
+                }
+              } else {
+                collection1[dPItem.name] = value;
+              }
+
             })
-            temp = await DataProcessing.findOne(collection1);
-            if (!temp) {
-              await DataProcessing.create(collection1);
+            try {
+              temp = await DataProcessing.findOne(collection1);
+              if (!temp) {
+                await DataProcessing.create(collection1);
+              }
+            } catch (err) {
+              
             }
           }
           

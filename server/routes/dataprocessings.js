@@ -26,6 +26,7 @@ router.use(checkAdmin);
 
 router.get('/getUnpublished', controller.getUnpublishedData);
 router.post('/delete', validator.body(deleteSchema), controller.delete);
+router.post('/deleteAllUnpublished', controller.deleteAllUnpublished)
 router.post('/saveAndPublish', controller.saveAndPublish);
 // router.post('/update', validator.body(updateSchema), controller.update);
 // router.get('/all', controller.all);

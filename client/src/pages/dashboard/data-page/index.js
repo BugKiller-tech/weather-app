@@ -18,7 +18,6 @@ import './style.css'
 
 class DataPage extends Component {
 
-
   state = {
     date_selection_type: 'last_week',
     startDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
@@ -58,8 +57,8 @@ class DataPage extends Component {
 
     this.setState({ loading: true })
     api.fetchData({
-      startDate: startDate.unix(),
-      endDate: endDate.set({ hour: 23, minute: 59, second:59, millisecond: 0 }).unix()
+      startDate: startDate,   // startDate.unix()
+      endDate: endDate.set({ hour: 23, minute: 59, second:59, millisecond: 0 })
     })
     .then(res => {
       console.log(res.data);
@@ -78,30 +77,39 @@ class DataPage extends Component {
   }
 
   render () {
+    const dispData = this.state.data;
+
     var columns = [
-      // { Header: 'className', accessor: 'className' },
-      // { Header: 'location', accessor: 'location' },
-      { Header: 'district', accessor: 'district' },
-      { Header: 'village', accessor: 'village' },
-      { Header: 'stationName', accessor: 'stationName' },
-      { Header: 'date', accessor: 'date' },
-      { Header: 'time', accessor: 'time' },
-      { Header: 'tempOut', accessor: 'tempOut' },
-      { Header: 'hiTemp', accessor: 'hiTemp' },
-      { Header: 'lowTemp', accessor: 'lowTemp' },
-      { Header: 'outHum', accessor: 'outHum' },
-      { Header: 'dewpt', accessor: 'dewpt' },
-      { Header: 'avgWindSpeed', accessor: 'avgWindSpeed' },
-      { Header: 'hiWindSpeed', accessor: 'hiWindSpeed' },
-      { Header: 'windDir', accessor: 'windDir' },
-      { Header: 'bar', accessor: 'bar' },
-      { Header: 'rain', accessor: 'rain' },
-      { Header: 'rainRate', accessor: 'rainRate' },
-      { Header: 'heatDD', accessor: 'heatDD' },
-      { Header: 'coolDD', accessor: 'coolDD' },
-      { Header: 'leafWet', accessor: 'leafWet' },
-      { Header: 'batVlt', accessor: 'batVlt' },
-    ]
+      {
+        'Header': 'Station',
+        'accessor': 'station',
+        Cell: data => {
+          return (
+            data.value.code
+          )
+        },
+        filterMethod: (filter, row) => {
+          return row[filter.id].code.startsWith(filter.value) ||
+                 row[filter.id].code.endsWith(filter.value)
+        }
+      }
+    ];
+    const ignoreColumns = ['_id', 'station', '__v', 'updatedAt', 'published', 'createdAt'];
+    
+    
+    if (dispData.length > 0) {
+      Object.keys(dispData[0]).map(item => {
+        if (ignoreColumns.includes(item)) return;
+        columns.push({
+          Header: item,
+          accessor: item
+        })
+      })
+    }
+    
+
+
+
 
     if (this.props.user && !this.props.user.isAdmin) {
       var availableFields = this.props.user.fields;
@@ -109,7 +117,7 @@ class DataPage extends Component {
         return availableFields.includes(column.Header)
       })
     }
-    const dispData = this.state.data;
+    
 
 
     const downloadHeader = []

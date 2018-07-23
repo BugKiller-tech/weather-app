@@ -8,6 +8,7 @@ const controller = require('../controllers/DataPointController');
 const createSchema = Joi.object({
   name: Joi.string().required(),
   desc: Joi.string().required(),
+  isChartDispElement: Joi.boolean(),
   relations: Joi.array().required(),
 });
 const deleteSchema = Joi.object({
@@ -17,6 +18,7 @@ const updateSchema = Joi.object({
   _id: Joi.string().required(),
   name: Joi.string().required(),
   desc: Joi.string().required(),
+  isChartDispElement: Joi.boolean(),
   relations: Joi.array().required(),
 });
 

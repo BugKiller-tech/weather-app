@@ -6,7 +6,8 @@ import {
   Dialog, Paper, TextField, RaisedButton, 
   Snackbar, IconButton, FloatingActionButton, 
   FontIcon, FlatButton ,
-  MenuItem, SelectField
+  MenuItem, SelectField,
+  Toggle,
 } from 'material-ui';
 
 import Spinner from 'react-spinkit';
@@ -40,6 +41,7 @@ class DataPoints extends Component {
     inputData: {
       name: '',
       desc: '',
+      isChartDispElement: '',
       relations: []
     },
     selectedStationId: '',
@@ -195,6 +197,7 @@ class DataPoints extends Component {
       inputData: {
         name: dataPoint.name,
         desc: dataPoint.desc,
+        isChartDispElement: dataPoint.isChartDispElement,
         relations: dataPoint.relations,
       },
       modalOpen: true,
@@ -299,10 +302,15 @@ class DataPoints extends Component {
         </span>
       },
       {
+        Header: 'Chart field ?',
+        accessor: 'isChartDispElement',
+        Cell: props => <span>{ props.value ? 'YES' : 'NO' }</span>
+      },
+      {
         Header: 'Action',
         accessor: '_id',
         Cell: props => <div>
-          <IconButton iconClassName="material-icons" onClick={() => { this.deleteAction(props.value) }}>delete</IconButton>
+          {props.original.name != 'time' && <IconButton iconClassName="material-icons" onClick={() => { this.deleteAction(props.value) }}>delete</IconButton>}
           <IconButton iconClassName="material-icons" onClick={() => { this.editAccount(props.value) }}>mode_edit</IconButton>
         </div>
       }
@@ -386,6 +394,7 @@ class DataPoints extends Component {
                   errorText={ errors.name ? errors.name : '' }
                   onChange={ (e) => { this.setState({ inputData: { ...inputData, name: e.target.value }} )} }
                   value={ inputData.name }
+                  disabled = { inputData.name == 'time' }
                   fullWidth={true}
                 />
                 <TextField 
@@ -397,6 +406,15 @@ class DataPoints extends Component {
                   value={ inputData.desc }
                   fullWidth={true}
                 />
+                <Toggle
+                  label="Make Chart in dashboard"
+                  toggled={inputData.isChartDispElement}
+                  style={{ maxWidth: `300px` }}
+                  onToggle={(e, checked) => {
+                    this.setState({ inputData: { ...inputData, isChartDispElement: checked } })
+                  }}
+                />
+
 
                 <div className="row border border-info">
                   <div className="col-md-5">

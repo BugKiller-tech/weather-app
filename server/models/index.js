@@ -8,12 +8,24 @@ const url = dbConfig.MONGODB_URL;
 
 const WeatherData = require('./WeatherData');
 const User = require('./User');
+const DataPoint = require('./DataPoint');
 
 module.exports = function() {
   console.log('Trying to connect to server now....');
   mongoose.connect(url)
   mongoose.connection.once('open', async () => {
     console.log('Connected to server.... :)');
+
+
+    try {
+      const timeField = await DataPoint.findOne({ name: 'time' });
+      if (!timeField) {
+        await DataPoint.create({ name: 'time', desc: 'time field' });
+      }
+    } catch (err) {  }
+    
+
+
 
 
     // const data = await User.find({ username: 'test1' });
