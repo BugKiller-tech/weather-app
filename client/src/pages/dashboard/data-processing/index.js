@@ -11,6 +11,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 import ProgressButton from 'react-progress-button';
+import moment from 'moment';
 
 import Api from '../../../api';
 
@@ -67,16 +68,22 @@ class DataProcessing extends Component {
   renderEditable = (cellInfo) => {
     return (
       <div
-        style={{ backgroundColor: "#fcfcfc" }}
+        style={{ backgroundColor: "#ffffff" }}
         contentEditable
         suppressContentEditableWarning
         onBlur={e => {
           const data = [...this.state.data];
           data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+          // if (cellInfo.column.id == 'time') {
+          //   data[cellInfo.index][cellInfo.column.id] = new Date(Date.parse(e.target.innerHTML));
+          // } else {
+          //   data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+          // }
+          
           this.setState({ data });
         }}
         dangerouslySetInnerHTML={{
-          __html: this.state.data[cellInfo.index][cellInfo.column.id]
+          __html: cellInfo.column.id == 'time' ?  moment(this.state.data[cellInfo.index][cellInfo.column.id]).toISOString() : this.state.data[cellInfo.index][cellInfo.column.id]
         }}
       />
     );
@@ -116,7 +123,7 @@ class DataProcessing extends Component {
       keys = Object.keys(data[0]);
     }
     const columns = []; const editColumns = [];
-    const exceptKeys = ['_id', 'published', '__v', 'updatedAt', 'createdAt'];
+    const exceptKeys = ['_id', 'published', '__v', 'time', 'updatedAt', 'createdAt'];
     keys.map(key => {
       if (exceptKeys.includes(key)) { return }
       if (key == 'station') {
@@ -130,12 +137,13 @@ class DataProcessing extends Component {
       columns.push({ Header: key, accessor: key, Cell: this.renderEditable });
       editColumns.push(key);
     });
+    columns.push({ 'Header': 'Time',  accessor: 'time', Cell: this.renderEditable })
     columns.push({
       Header: 'Action',
       accessor: '_id',
       Cell: (data) => (
         <Fragment>
-          <IconButton iconClassName="material-icons" onClick={() => { this.delete(data.value) }}>delete</IconButton>
+          <IconButton iconClassName="material-icons" onClick={() => { this.delete(data.value) }} style={{ padding: '0px', width: '20px', height: '20px' }} >delete</IconButton>
         </Fragment>
       ),
       width: 100,
@@ -174,6 +182,7 @@ class DataProcessing extends Component {
                 data = { data }
                 columns = { columns }
                 defaultPageSize={10}
+                style={{ background: '#EEEEEE' }}
               />
             </Paper>
           </div>

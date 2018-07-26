@@ -169,7 +169,7 @@ module.exports = {
     }
 
     try {
-      const user = await User.findOne({username: req.body.username})
+      const user = await User.findOne({username: req.body.username}).populate('fields').populate('locations')
       if (user) {
 
         if (user.isValidPassword(req.body.password)) {

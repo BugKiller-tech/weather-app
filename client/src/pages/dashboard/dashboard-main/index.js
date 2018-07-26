@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 
 // import { Pie, Bar, Line } from 'react-chartjs';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import { Paper, DropDownMenu, MenuItem } from 'material-ui';
 
 import * as moment from 'moment';
@@ -48,8 +48,8 @@ class DashboardMain extends Component {
   state = {
     
     date_selection_type: 'last_week',
-    startDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
-    endDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
+    startDate: moment().startOf('week').subtract(7, 'days'),
+    endDate:  moment().endOf('week').subtract(7, 'days').endOf('hour'),
     focusedInput: null,
 
     selectedLocations: [],
@@ -70,16 +70,17 @@ class DashboardMain extends Component {
   componentWillReceiveProps = (nextProps) => {
     var nextState = { ...this.state }
 
-    if (nextProps.allLocations) { 
-      nextState.allLocations = nextProps.allLocations 
+    if (nextProps.allLocations) {
       if (this.state.user && this.state.user.isAdmin) {
+        nextState.allLocations = nextProps.allLocations 
         if (this.state.selectedLocations.length == 0 && nextProps.allLocations.length > 0)
           nextState.selectedLocations = [{ value: nextProps.allLocations[0]._id, label: nextProps.allLocations[0].code }];
-      }
+      }     
     }
 
     if (nextProps.user) { 
       nextState.user = nextProps.user 
+      nextState.allLocations = nextProps.user.locations
       if (!nextProps.user.isAdmin && nextProps.user.locations.length > 0) {
         if (this.state.selectedLocations.length == 0 && nextProps.allLocations.length > 0)
           nextState.selectedLocations = [{ value: nextProps.user.locations[0]._id, label: nextProps.user.locations[0].code }];
@@ -128,6 +129,24 @@ class DashboardMain extends Component {
       console.log(err);
     })
   }
+
+  setDateRangeType = (value) => {
+    var startDate = undefined, endDate;
+    if (value == 'last_week') {
+      startDate = moment().startOf('week').subtract(7, 'days');
+      endDate =  moment().endOf('week').subtract(7, 'days').endOf('hour'); 
+    } else if (value == 'last_month') { 
+      startDate = moment().subtract(1,'months').startOf('month');
+      endDate =  moment().subtract(1,'months').endOf('month').endOf('hour');
+    }
+    if (startDate) {
+      this.setState({ date_selection_type: value, startDate, endDate })
+    } else {
+      this.setState({ date_selection_type: value })
+    }
+  }
+  
+
   render () {
 
     const { user } = this.state;
@@ -155,7 +174,21 @@ class DashboardMain extends Component {
     }
 
     const allDrawData = { };
-    this.props.dataPoints.map(item => {
+
+    var availableFieldsForUser = []
+      if (this.props.user && !this.props.user.isAdmin) {
+        availableFieldsForUser = this.props.user.fields.map(item => item.name);
+      }
+
+    this.props.dataPoints
+    .filter(item => {
+      if (this.props.user && !this.props.user.isAdmin &&
+        availableFieldsForUser.find(function(element) { return element == item.name  }) == undefined) {
+          return false;
+      }
+      return true;
+    })
+    .map(item => {
       if (item.isChartDispElement) allDrawData[item.name] = {};
     })
     console.log('drawArrays', allDrawData);
@@ -168,7 +201,10 @@ class DashboardMain extends Component {
     const interestedLocationCount = interestedLocations.length;
 
     if (interestedLocationCount > 0) {
+
       Object.keys(allDrawData).map(drawItemKey => {
+
+
 
         for(var i = 0; i<interestedLocationCount; i++) {
           
@@ -176,24 +212,34 @@ class DashboardMain extends Component {
           
           var sum_data1 = 0; var sumcount1 = 0;  const drawData1 = []  //hiTemp
           var currentDate = moment().add(-100, 'days');
+          var isStartPoint = true;
           const labels = []
 
-          this.state.data.map(d => {
+
+          
+          this.state.data.reverse().map( (d, idx) => {
             if (d.station.code != currentLocation) { return }
+
+            console.log('data from server', idx, d.time);
+
             let date = moment(d.time);
-            if (date.diff(currentDate) > 0)  {
-              labels.push(currentDate)
+            if ( Math.abs(date.diff(currentDate, 'days')) > 0)  {
+              if (isStartPoint) {
+                labels.push('_')
+                isStartPoint = false
+              } else
+                labels.push(currentDate.format('YYYY/MM/DD'))
               
               if (sumcount1 != 0) {  drawData1.push(sum_data1 / sumcount1) } else {  drawData1.push(0) }
               sumcount1 = 1;  sum_data1 = parseFloat(d[drawItemKey]);
-              
-              currentDate = d.date;
+              currentDate = date;
 
             } else {
               sumcount1 += 1; sum_data1 += parseFloat(d[drawItemKey])
             }
           })
           labels.push(currentDate.format('YYYY/MM/DD'));
+          
           if (sumcount1 != 0) {  drawData1.push(sum_data1 / sumcount1) } else {  drawData1.push(0) }
 
 
@@ -225,7 +271,7 @@ class DashboardMain extends Component {
               fill: false,
               borderColor: `rgba(${graphColors[i]}, 1)`,
               pointBorderColor: `rgba(${graphColors[i]}, 1)`,
-              // backgroundColor: `rgba(${graphColors[i]}, 0.4)`,
+              backgroundColor: `rgba(${graphColors[i]}, 0.4)`,
               data: allDrawData[fieldKey][codeName]
             });
           }
@@ -267,7 +313,7 @@ class DashboardMain extends Component {
             <div className="col-lg-12 text-center">
               <DropDownMenu 
                   value={this.state.date_selection_type} 
-                  onChange={ (event, index, value) => { this.setState({ date_selection_type: value }) }}
+                  onChange={ (event, index, value) => { this.setDateRangeType(value) }}
                   style={{ minWidth: '200px'}}
                   >
                   <MenuItem value={"last_week"} primaryText="Last Week" ></MenuItem>
@@ -282,7 +328,8 @@ class DashboardMain extends Component {
                 onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
                 focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
                 onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
-                isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
+                // isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
+                isOutsideRange={() => false}
                 disabled={ this.state.date_selection_type !='custom' ? true: false }
               />
               <RaisedButton primary={true} label="Search" onClick={this.fetchData} style={{ marginLeft: '30px' }} />
@@ -303,7 +350,7 @@ class DashboardMain extends Component {
                   <Paper style={{padding: '10px'}}>
                     <h4>{fieldKey} Graph</h4>
                     { interestedLocationCount > 0 && xAxislabels.length > 1 &&
-                      <Line data={drawLineData[fieldKey]} options={{ responsive: true }}/>
+                      <Bar data={drawLineData[fieldKey]} options={{ responsive: true }}/>
                     }
                   </Paper>
                 </div>

@@ -68,10 +68,11 @@ server = new ftpd.FtpServer(options.host, {
 
       fs.exists(f_path, function(exists) {
         if (exists) {
-          callback(null, f_path);
+          callback(null, relativePath);
         } else {
           fs.mkdir(f_path, function(err) {
             if (err) {
+              console.log('CAN NOT CREATE THE DIRECTORY', f_path);
               callback(null, '/');
             } else {
               callback(null, '/' + relativePath);
@@ -236,15 +237,17 @@ server.on('client:connected', function(connection) {
 
               let value = collection[dPItem.colName];
               if (dPItem.name == 'time') {
-                if (Date.parse(value) == NaN) {
-                  console.log('~~~~~~~~~ INCLUDES ONLY TIME', value);
+                console.log('~~~~~~~~~`', value, Date.parse(value));
+                if (isNaN(Date.parse(value))) {
                   let d = new Date();
                   let hms = value.split(':');
+                  console.log('splited time', hms);
                   
-                  if (hms.length > 2) {  d.setHours( parseInt(hms[0]));  d.setMinutes( parseInt(hms[1])); }
+                  if (hms.length >= 2) {  d.setUTCHours( parseInt(hms[0]), parseInt(hms[1]), 0 ); }
+                  console.log('~~~~~~~~~ INCLUDES ONLY TIME', value, d.toString());
                   collection1[dPItem.name] = d;
                 } else {
-                  console.log('~~~~~~~~~ INCLUDES ULL DATE AND TIME', value);
+                  console.log('all date format', value);
                   collection1[dPItem.name] = new Date(Date.parse(value))
                 }
               } else {

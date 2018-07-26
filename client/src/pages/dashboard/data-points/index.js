@@ -310,8 +310,9 @@ class DataPoints extends Component {
         Header: 'Action',
         accessor: '_id',
         Cell: props => <div>
-          {props.original.name != 'time' && <IconButton iconClassName="material-icons" onClick={() => { this.deleteAction(props.value) }}>delete</IconButton>}
-          <IconButton iconClassName="material-icons" onClick={() => { this.editAccount(props.value) }}>mode_edit</IconButton>
+          {props.original.name != 'time' && <IconButton iconClassName="material-icons" style={{ padding: '0px', width: '20px', height: '20px' }}  onClick={() => { this.deleteAction(props.value) }}>delete</IconButton>}
+          &nbsp;&nbsp;&nbsp;
+          <IconButton iconClassName="material-icons" style={{ padding: '0px', width: '20px', height: '20px' }} onClick={() => { this.editAccount(props.value) }}>mode_edit</IconButton>
         </div>
       }
     ];

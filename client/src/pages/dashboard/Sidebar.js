@@ -29,7 +29,7 @@ class Sidebar extends Component {
       path: 'ftp-accounts',
       icon: 'account_balance_wallet',
       hasChild: false,
-      adminOnly: false,
+      adminOnly: true,
     },
     {
       name: 'weather-stations',
@@ -37,7 +37,7 @@ class Sidebar extends Component {
       path: 'weather-stations',
       icon: 'place',
       hasChild: false,
-      adminOnly: false,
+      adminOnly: true,
     },
     {
       name: 'data-points',
@@ -45,7 +45,7 @@ class Sidebar extends Component {
       path: 'data-points',
       icon: 'select_all',
       hasChild: false,
-      adminOnly: false,
+      adminOnly: true,
     },
     {
       name: 'data-cleanup',

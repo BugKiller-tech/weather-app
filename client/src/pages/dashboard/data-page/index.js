@@ -20,8 +20,8 @@ class DataPage extends Component {
 
   state = {
     date_selection_type: 'last_week',
-    startDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
-    endDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
+    startDate: moment().startOf('week').subtract(7, 'days'),
+    endDate:  moment().endOf('week').subtract(7, 'days').endOf('hour'),
     focusedInput: null,
 
 
@@ -76,8 +76,24 @@ class DataPage extends Component {
     })
   }
 
+  setDateRangeType = (value) => {
+    var startDate = undefined, endDate;
+    if (value == 'last_week') {
+      startDate = moment().startOf('week').subtract(7, 'days');
+      endDate =  moment().endOf('week').subtract(7, 'days').endOf('hour'); 
+    } else if (value == 'last_month') { 
+      startDate = moment().subtract(1,'months').startOf('month');
+      endDate =  moment().subtract(1,'months').endOf('month').endOf('hour');
+    }
+    if (startDate) {
+      this.setState({ date_selection_type: value, startDate, endDate })
+    } else {
+      this.setState({ date_selection_type: value })
+    }
+  }
+
   render () {
-    const dispData = this.state.data;
+    var dispData = this.state.data;
 
     var columns = [
       {
@@ -98,34 +114,40 @@ class DataPage extends Component {
     
     
     if (dispData.length > 0) {
-      Object.keys(dispData[0]).map(item => {
-        if (ignoreColumns.includes(item)) return;
-        columns.push({
-          Header: item,
-          accessor: item
+      dispData.map(oneData => {
+        Object.keys(oneData).map(item => {
+          if (ignoreColumns.includes(item)) return;
+
+          if (columns.find(function(elem) { return elem.Header == item  }) == undefined) {
+            columns.push({
+              Header: item,
+              accessor: item
+            })
+          }
+
         })
       })
     }
     
 
-
-
-
     if (this.props.user && !this.props.user.isAdmin) {
-      var availableFields = this.props.user.fields;
+      var availableFields = this.props.user.fields.map(item => { return item.name });
       columns = columns.filter(column => {
-        return availableFields.includes(column.Header)
+        if (column.accessor == 'station') return true;
+        return availableFields.includes(column.Header) 
+      })
+
+      dispData = dispData.filter(data => {
+        let availableLocationIds = this.props.user.locations.map(item => { return item._id });
+        return availableLocationIds.includes(data.station._id);
       })
     }
     
-
 
     const downloadHeader = []
     columns.map(colume => {
       downloadHeader.push( {label: colume.Header, key: colume.accessor})
     })
-
-
 
 
     return (
@@ -137,7 +159,7 @@ class DataPage extends Component {
               <div className="col-lg-12 text-center">
               <DropDownMenu 
                   value={this.state.date_selection_type} 
-                  onChange={ (event, index, value) => { this.setState({ date_selection_type: value }) }}
+                  onChange={ (event, index, value) => { this.setDateRangeType(value) }}
                   style={{ minWidth: '200px'}}
                   >
                   <MenuItem value={"last_week"} primaryText="Last Week" ></MenuItem>
@@ -152,7 +174,8 @@ class DataPage extends Component {
                 onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
                 focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
                 onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
-                isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
+                // isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
+                isOutsideRange={() => false}
                 disabled={ this.state.date_selection_type !='custom' ? true: false }
               />
               <RaisedButton primary={true} label="Search" onClick={this.fetchData} style={{ margin: '10px' }} />
