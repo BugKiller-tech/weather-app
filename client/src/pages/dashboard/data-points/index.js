@@ -169,15 +169,27 @@ class DataPoints extends Component {
     let items = this.state.inputData.relations.filter(item => {
       return item.weatherStation == this.state.selectedStationId
     })
-    if (items.length > 0) {
+    if (items.length > 0 && this.state.inputData.name != 'time') {
       this.setState({
         snackbarOpen: true,
         snackMessage: 'This weather station is already added'
       }) 
       return;
     }
+    if (items.length > 1 && this.state.inputData.name == 'time') {
+      this.setState({
+        snackbarOpen: true,
+        snackMessage: 'You already picked 2 fields for the time data point'
+      }) 
+      return;
+    }
 
-    let newRelation = { weatherStation: this.state.selectedStationId, colName: this.state.selectedColumnName }
+    var formatString = '';
+    if (this.state.inputData.name == 'time') {
+      formatString = window.prompt('Please input the format if this field date format.', '');
+    }
+
+    let newRelation = { weatherStation: this.state.selectedStationId, colName: this.state.selectedColumnName, dateFormatString: formatString }
     this.setState({
       inputData: {
         ...this.state.inputData, relations: [ ...this.state.inputData.relations, newRelation ]  
@@ -256,7 +268,7 @@ class DataPoints extends Component {
       else  
         return 'Unknown';
     }).forEach(element => {
-      names += element + ',';            
+      names += element + ',\n\n';            
     });
     return names;
   }
@@ -295,11 +307,17 @@ class DataPoints extends Component {
       {
         Header: 'Connected Weather Stations',
         accessor: 'relations',
-        Cell: props => <span className="badge badge-success" style={{ cursor: 'pointer'}} onClick={ () => this.displayConnectedStations(props.value) }>
-        &nbsp;&nbsp;&nbsp;
-          { props.value.length }
-        &nbsp;&nbsp;&nbsp;
-        </span>
+        Cell: props => {
+          if (props.original.name != 'time') {
+            return (
+              <span className="badge badge-success" style={{ cursor: 'pointer'}} onClick={ () => this.displayConnectedStations(props.value) }>
+                &nbsp;&nbsp;{ props.value.length }&nbsp;&nbsp;
+              </span>
+            )
+          } else {
+            return (<div></div>)
+          }
+        }
       },
       {
         Header: 'Chart field ?',
@@ -344,7 +362,7 @@ class DataPoints extends Component {
       return (
         <tr>
           <td>{ station.code }</td>
-          <td>{item.colName}</td>
+          <td>{item.colName } { item.dateFormatString  ? ' (' + item.dateFormatString + ')' : '' } </td>
           <td>
             <i className="material-icons" onClick={() => { this.removeStationFromRelation(item.weatherStation) }}>delete_forever</i>
           </td>

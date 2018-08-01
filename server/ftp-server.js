@@ -7,6 +7,29 @@ const moment = require('moment');
 
 
 
+function isValidDate(str1, formatString = '') {
+
+  if (formatString != '' ) {
+    if (moment.utc(str1, formatString).isValid()) {
+      return moment.utc(str1, formatString);
+    }
+  }
+
+  if (moment.utc(str1).isValid()) {
+    return moment.utc(str1);
+  }
+  
+  if (moment.utc(str1, "DD/MM/YYYY HH:mm").isValid()) {
+    return moment.utc(str1, "DD/MM/YYYY HH:mm");
+  }
+
+  if (moment.utc(str1, "DD/MM/YYYY").isValid()) {
+    return moment.utc(str1, "DD/MM/YYYY");
+  }
+  return false;
+}
+
+
 
 var ftp_root = 'ftp_root';
 
@@ -200,19 +223,35 @@ server.on('client:connected', function(connection) {
 
       let dataPoints = await DataPoint.find({ 'relations': { $elemMatch: { weatherStation: weatherStation._id } } });
       let dataProcessingKeys = [];
+      let dataProcessingTimeKeys = [];
       if (dataPoints) {
         dataPoints.map(item => {
-          let colName = '';
-          let found = item.relations.find(rel => {
-            return rel.weatherStation.equals(weatherStation._id);
-          });
-          dataProcessingKeys.push({
-            name: item.name,
-            colName: found.colName
-          });
+          // let found = item.relations.find(rel => {
+          //   return rel.weatherStation.equals(weatherStation._id);
+          // });
+          // dataProcessingKeys.push({
+          //   name: item.name,
+          //   colName: found.colName
+          // });
+
+          item.relations.map(item1 => {
+            if (item1.weatherStation.equals(weatherStation._id)) {
+              if (item.name != 'time') {
+                dataProcessingKeys.push({
+                  name: item.name,
+                  colName: item1.colName
+                });
+              } else {
+                dataProcessingTimeKeys.push({
+                  colName: item1.colName,
+                  dateFormatString: item1.dateFormatString,
+                });
+              }
+            }
+          })
         })
       }
-      console.log('DataProcessing', dataProcessingKeys);
+      console.log('~~~~~  DataProcessing', dataProcessingKeys);
 
       // console.log(keys);
       csv({ output: 'csv' }).fromFile(filePath)
@@ -234,27 +273,36 @@ server.on('client:connected', function(connection) {
             }
 
             dataProcessingKeys.map(dPItem => {
-
               let value = collection[dPItem.colName];
-              if (dPItem.name == 'time') {
-                console.log('~~~~~~~~~`', value, Date.parse(value));
-                if (isNaN(Date.parse(value))) {
-                  let d = new Date();
-                  let hms = value.split(':');
-                  console.log('splited time', hms);
-                  
-                  if (hms.length >= 2) {  d.setUTCHours( parseInt(hms[0]), parseInt(hms[1]), 0 ); }
-                  console.log('~~~~~~~~~ INCLUDES ONLY TIME', value, d.toString());
-                  collection1[dPItem.name] = d;
-                } else {
-                  console.log('all date format', value);
-                  collection1[dPItem.name] = new Date(Date.parse(value))
-                }
-              } else {
-                collection1[dPItem.name] = value;
-              }
-
+              collection1[dPItem.name] = value;
             })
+
+            var timeValue = new Date();
+            if (dataProcessingTimeKeys.length == 2 ) {
+              let dateOrTime1 = collection[dataProcessingTimeKeys[0].colName]; let dateTime1FormatString = collection[dataProcessingTimeKeys[0].dateFormatString];
+              let dateOrTime2 = collection[dataProcessingTimeKeys[1].colName]; let dateTime2FormatString = collection[dataProcessingTimeKeys[0].dateFormatString];
+              console.log('This pretty cool feature to make correct time from the multiple columns', dateOrTime1, dateOrTime2);
+
+              if (!isValidDate(dateOrTime1, dateTime1FormatString) && isValidDate(dateOrTime2, dateTime2FormatString)) {
+                let temp = dateOrTime1;    dateOrTime1 = dateOrTime2;    dateOrTime2 = temp;
+                temp = dateTime1FormatString;    dateTime1FormatString = dateTime2FormatString;    dateTime2FormatString = temp;
+              }
+              if (isValidDate(dateOrTime1, dateTime1FormatString) && !isValidDate(dateOrTime2, dateTime2FormatString)) {
+                timeValue = isValidDate(dateOrTime1, dateTime1FormatString).toDate();
+                console.log('testing purpose', isValidDate(dateOrTime1, dateTime1FormatString), timeValue);
+                let hms = dateOrTime2.split(':');
+                if (hms.length >= 2) {  timeValue.setUTCHours( parseInt(hms[0]), parseInt(hms[1]), 0 ); }
+              }
+            } else if ( dataProcessingTimeKeys.length == 1 ) {
+              if (!isValidDate(dateOrTime1, dateTime1FormatString)) {
+                timeValue = new Date();
+                let hms = dateOrTime1.split(':');
+                if (hms.length >= 2) {  timeValue.setUTCHours( parseInt(hms[0]), parseInt(hms[1]), 0 ); }
+              } else {
+                timeValue = new Date(Date.parse(dateOrTime1));
+              }              
+            }
+            collection1['time'] = timeValue;
             try {
               temp = await DataProcessing.findOne(collection1);
               if (!temp) {

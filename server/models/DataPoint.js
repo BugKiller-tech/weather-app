@@ -20,7 +20,8 @@ const schema = new Schema(
           type: Schema.Types.ObjectId,
           ref: 'WeatherStation'
         },
-        colName: String
+        colName: String,
+        dateFormatString: String,
     }]
   },
   {
