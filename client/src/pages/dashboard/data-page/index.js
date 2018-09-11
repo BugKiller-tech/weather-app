@@ -101,7 +101,7 @@ class DataPage extends Component {
         'accessor': 'station',
         Cell: data => {
           return (
-            data.value.code
+            data.value ? data.value.code : ''
           )
         },
         filterMethod: (filter, row) => {
@@ -142,6 +142,13 @@ class DataPage extends Component {
         return availableLocationIds.includes(data.station._id);
       })
     }
+
+
+    const csvData = dispData.map((item, idx) => {
+      if (idx < 3) console.log('csv data making', item);
+      item.station = item.station ? item.station.code : '';
+      return item;
+    })
     
 
     const downloadHeader = []
@@ -179,7 +186,7 @@ class DataPage extends Component {
                 disabled={ this.state.date_selection_type !='custom' ? true: false }
               />
               <RaisedButton primary={true} label="Search" onClick={this.fetchData} style={{ margin: '10px' }} />
-              <CSVLink data={dispData} headers={downloadHeader} filename={`weather-data-downloaded-at-${moment().toString()}.csv`} style={{ float: 'right' }}>
+              <CSVLink data={csvData} headers={downloadHeader} filename={`weather-data-downloaded-at-${moment().toString()}.csv`} style={{ float: 'right' }}>
                   Download as CSV
               </CSVLink>
               </div>

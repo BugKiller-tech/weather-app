@@ -17,8 +17,8 @@ app.set('view engine', 'ejs');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../client/build')));
 
@@ -39,7 +39,7 @@ app.use('/', index);
 
 //Joi error send middleware
 app.use((err, req, res, next) => {
-  if (err.error.isJoi) {
+  if (err.error && err.error.isJoi) {
     // we had a joi error, let's return a custom 400 json response
     res.status(400).json({
       type: err.type, // will be "query" here, but could be "headers", "body", or "params"
