@@ -99,18 +99,22 @@ class DataPage extends Component {
       {
         'Header': 'Station',
         'accessor': 'station',
-        Cell: data => {
-          return (
-            data.value ? data.value.code : ''
-          )
-        },
-        filterMethod: (filter, row) => {
-          return row[filter.id].code.startsWith(filter.value) ||
-                 row[filter.id].code.endsWith(filter.value)
-        }
+        // Cell: data => {
+        //   return (
+        //     data.value != undefined ? data.value.code : ''
+        //   )
+        // },
+        // filterMethod: (filter, row) => {
+        //   return row[filter.id].code.startsWith(filter.value) ||
+        //          row[filter.id].code.endsWith(filter.value)
+        // }
+      },
+      {
+        'Header': 'Time',
+        accessor: 'time',
       }
     ];
-    const ignoreColumns = ['_id', 'station', '__v', 'updatedAt', 'published', 'createdAt'];
+    const ignoreColumns = ['_id', 'station', '__v', 'updatedAt', 'published', 'createdAt', 'time'];
     
     
     if (dispData.length > 0) {
@@ -145,10 +149,13 @@ class DataPage extends Component {
 
 
     const csvData = dispData.map((item, idx) => {
-      if (idx < 3) console.log('csv data making', item);
+      // if (idx < 3) console.log('csv data making', item);
       item.station = item.station ? item.station.code : '';
+      item.time = item.time ?  moment(item.time).format('YYYY-MM-DD HH:mm') : ''
       return item;
     })
+
+    console.log('displaying data is', dispData);
     
 
     const downloadHeader = []
@@ -198,7 +205,7 @@ class DataPage extends Component {
               ) : '' }
             
             <ReactTable 
-              data={dispData}
+              data={csvData}
               columns={columns}
               defaultPageSize={10}
               filterable={true}
